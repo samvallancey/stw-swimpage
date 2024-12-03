@@ -42,16 +42,50 @@
 
         #chart-container {
             width: 100%;
-            height: 50vh;
+            
         }
 
         svg {
             width: 100%;
             height: 100%;
         }
+        #dropdown-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#dropdown-container label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 10px;
+    color: #1F305E;
+}
+
+#beach-selector {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #1F305E;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #1F305E;
+    outline: none;
+    cursor: pointer;
+}
+
+#beach-selector:hover {
+    background-color: #e6e6e6;
+}
+
     </style>
 </head>
 <body>
+    <div id="dropdown-container">
+        <label for="beach-selector">Select Beach:</label>
+        <select id="beach-selector">
+            <option value="yaverland">Yaverland</option>
+        </select>
+    </div>
     <div id="chart-container">
         <svg></svg>
     </div>
@@ -108,7 +142,7 @@
 
     const margin = { top: 20, right: 30, bottom: 50, left: 50 };
     const width = container.node().offsetWidth - margin.left - margin.right;
-    const height = Math.min(window.innerHeight * 0.2, 400); // Scale to 50% of viewport height, max 400px
+    const height = Math.min(window.innerHeight * 0.2, 200); // Scale to 50% of viewport height, max 400px
 
     const g = svg
         .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
@@ -192,15 +226,51 @@
         .attr("y", 0)
         .attr("width", x(sunrise))
         .attr("height", height)
-        .attr("fill", "rgba(0, 0, 0, 0.1)");
+        .attr("fill", "rgba(0, 0, 0, 0.2)");
 
     g.insert("rect", ":first-child")
         .attr("x", x(sunset))
         .attr("y", 0)
         .attr("width", width - x(sunset))
         .attr("height", height)
-        .attr("fill", "rgba(0, 0, 0, 0.1)");
+        .attr("fill", "rgba(0, 0, 0, 0.2)");
+
+       // Add sunrise icon
+g.append("g")
+    .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="20" fill="orange" />
+        <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
+        <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
+        <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
+        <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
+        <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
+        <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
+        <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
+        <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
+        <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
+    </svg>`)
+    .attr("transform", `translate(${x(sunrise) - 12}, ${height + 10})`);
+
+    // Add sunset icon
+g.append("g")
+    .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="20" fill="orange" />
+        <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
+        <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
+        <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
+        <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
+        <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
+        <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
+        <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
+        <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
+        <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
+    </svg>`)
+    .attr("transform", `translate(${x(sunset) - 12}, ${height + 10})`);
+
+
+
 }
+
 
 
         drawChart();
