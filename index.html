@@ -140,7 +140,7 @@
     // Clear the SVG before redrawing
     svg.selectAll("*").remove();
 
-    const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+    const margin = { top: 20, right: 10, bottom: 50, left: 30 };
     const width = container.node().offsetWidth - margin.left - margin.right;
     const height = Math.min(window.innerHeight * 0.2, 200); // Scale to 50% of viewport height, max 400px
 
@@ -159,10 +159,13 @@
         .domain([1.0, d3.max(predictions, d => d.Height) + 1]) // Use the exact Height range
         .range([height, 0]);
 
-    g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .attr("class", "axis")
-        .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")));
+        g.append("g")
+    .attr("transform", `translate(0,${height})`)
+    .attr("class", "axis")
+    .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")))
+    .selectAll("text")
+    .style("text-anchor", "end")
+    .attr("transform", "rotate(-45)"); // Rotate labels 45 degrees
 
     g.append("g")
         .attr("class", "axis")
