@@ -108,7 +108,7 @@
 
     const margin = { top: 20, right: 30, bottom: 50, left: 50 };
     const width = container.node().offsetWidth - margin.left - margin.right;
-    const height = Math.min(window.innerHeight * 0.5, 400); // Scale to 50% of viewport height, max 400px
+    const height = Math.min(window.innerHeight * 0.2, 400); // Scale to 50% of viewport height, max 400px
 
     const g = svg
         .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
