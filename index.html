@@ -96,146 +96,112 @@
         }
 
         function drawChart() {
-            const predictions = generatePredictions(data);
-            const sunrise = new Date("2024-12-03T07:46:00");
-            const sunset = new Date("2024-12-03T16:04:00");
+    const predictions = generatePredictions(data);
+    const sunrise = new Date("2024-12-03T07:46:00");
+    const sunset = new Date("2024-12-03T16:04:00");
 
-            const container = d3.select("#chart-container");
-            const svg = container.select("svg");
+    const container = d3.select("#chart-container");
+    const svg = container.select("svg");
 
-            // Clear the SVG before redrawing
-            svg.selectAll("*").remove();
+    // Clear the SVG before redrawing
+    svg.selectAll("*").remove();
 
-            const margin = { top: 20, right: 30, bottom: 50, left: 50 };
-            const width = container.node().offsetWidth - margin.left - margin.right;
-            const height = container.node().offsetHeight - margin.top - margin.bottom;
+    const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+    const width = container.node().offsetWidth - margin.left - margin.right;
+    const height = Math.min(window.innerHeight * 0.5, 400); // Scale to 50% of viewport height, max 400px
 
-            const g = svg
-                .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-                .append("g")
-                .attr("transform", `translate(${margin.left},${margin.top})`);
+    const g = svg
+        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
 
-            const tooltip = d3.select(".tooltip");
+    const tooltip = d3.select(".tooltip");
 
-            const x = d3.scaleTime()
-                .domain([new Date("2024-12-03T00:00:00"), new Date("2024-12-04T00:00:00")])
-                .range([0, width]);
+    const x = d3.scaleTime()
+        .domain([new Date("2024-12-03T00:00:00"), new Date("2024-12-04T00:00:00")])
+        .range([0, width]);
 
-            const y = d3.scaleLinear()
-                .domain([1.0, d3.max(predictions, d => d.Height) + 1]) // Use the exact Height range
-                .range([height, 0]);
+    const y = d3.scaleLinear()
+        .domain([1.0, d3.max(predictions, d => d.Height) + 1]) // Use the exact Height range
+        .range([height, 0]);
 
-            g.append("g")
-                .attr("transform", `translate(0,${height})`)
-                .attr("class", "axis")
-                .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")));
+    g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .attr("class", "axis")
+        .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")));
 
-            g.append("g")
-                .attr("class", "axis")
-                .call(d3.axisLeft(y));
+    g.append("g")
+        .attr("class", "axis")
+        .call(d3.axisLeft(y));
 
-            const line = d3.line()
-                .x(d => x(d.DateTime))
-                .y(d => y(d.Height))
-                .curve(d3.curveCatmullRom);
+    const line = d3.line()
+        .x(d => x(d.DateTime))
+        .y(d => y(d.Height))
+        .curve(d3.curveCatmullRom);
 
-            g.append("path")
-                .datum(predictions)
-                .attr("fill", "none")
-                .attr("stroke", "#1F305E")
-                .attr("stroke-width", 3)
-                .attr("d", line);
+    g.append("path")
+        .datum(predictions)
+        .attr("fill", "none")
+        .attr("stroke", "#1F305E")
+        .attr("stroke-width", 3)
+        .attr("d", line);
 
-            g.selectAll("circle")
-                .data(predictions)
-                .enter()
-                .append("circle")
-                .attr("class", "dot")
-                .attr("cx", d => x(d.DateTime))
-                .attr("cy", d => y(d.Height))
-                .attr("r", 4)
-                .attr("fill", "#1F305E")
-                .on("mouseover", (event, d) => {
-                    tooltip.style("display", "block")
-                        .html(`Time: ${d3.timeFormat("%H:%M:%S")(d.DateTime)}<br>Height: ${d.Height.toFixed(2)}m`);
-                })
-                .on("mousemove", event => {
-                    tooltip.style("left", (event.pageX + 10) + "px")
-                        .style("top", (event.pageY - 20) + "px");
-                })
-                .on("mouseout", () => {
-                    tooltip.style("display", "none");
-                });
+    g.selectAll("circle")
+        .data(predictions)
+        .enter()
+        .append("circle")
+        .attr("class", "dot")
+        .attr("cx", d => x(d.DateTime))
+        .attr("cy", d => y(d.Height))
+        .attr("r", 4)
+        .attr("fill", "#1F305E")
+        .on("mouseover", (event, d) => {
+            tooltip.style("display", "block")
+                .html(`Time: ${d3.timeFormat("%H:%M:%S")(d.DateTime)}<br>Height: ${d.Height.toFixed(2)}m`);
+        })
+        .on("mousemove", event => {
+            tooltip.style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 20) + "px");
+        })
+        .on("mouseout", () => {
+            tooltip.style("display", "none");
+        });
 
-            // Sunrise line
-            g.append("line")
-                .attr("x1", x(sunrise))
-                .attr("x2", x(sunrise))
-                .attr("y1", 0)
-                .attr("y2", height)
-                .attr("stroke", "orange")
-                .attr("stroke-width", 2)
-                .attr("stroke-dasharray", "4 4");
+    // Sunrise and sunset lines
+    g.append("line")
+        .attr("x1", x(sunrise))
+        .attr("x2", x(sunrise))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "orange")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4 4");
 
-            // Sunset line
-            g.append("line")
-                .attr("x1", x(sunset))
-                .attr("x2", x(sunset))
-                .attr("y1", 0)
-                .attr("y2", height)
-                .attr("stroke", "red")
-                .attr("stroke-width", 2)
-                .attr("stroke-dasharray", "4 4");
+    g.append("line")
+        .attr("x1", x(sunset))
+        .attr("x2", x(sunset))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-width", 2)
+        .attr("stroke-dasharray", "4 4");
 
-            // Add sunrise icon
-            g.append("g")
-                .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="20" fill="orange" />
-                    <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
-                    <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
-                    <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-                    <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-                    <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-                    <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
-                    <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-                    <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-                    <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
-                </svg>`)
-                .attr("transform", `translate(${x(sunrise) - 12}, ${height + 10})`);
+    // Add subtle shading
+    g.insert("rect", ":first-child")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", x(sunrise))
+        .attr("height", height)
+        .attr("fill", "rgba(0, 0, 0, 0.1)");
 
-            // Add sunset icon
-            g.append("g")
-                .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="20" fill="orange" />
-                    <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
-                    <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
-                    <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-                    <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-                    <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-                    <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-                    <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-                    <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
-                    <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
-                </svg>`)
-                .attr("transform", `translate(${x(sunset) - 12}, ${height + 10})`);
-            // Add subtle shading before sunrise (placed in the background)
-g.insert("rect", ":first-child")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", x(sunrise))
-    .attr("height", height)
-    .attr("fill", "rgba(0, 0, 0, 0.2)"); // Subtle shade
-
-// Add subtle shading after sunset (placed in the background)
-g.insert("rect", ":first-child")
-    .attr("x", x(sunset))
-    .attr("y", 0)
-    .attr("width", width - x(sunset))
-    .attr("height", height)
-    .attr("fill", "rgba(0, 0, 0, 0.2)"); // Subtle shade
-
-
+    g.insert("rect", ":first-child")
+        .attr("x", x(sunset))
+        .attr("y", 0)
+        .attr("width", width - x(sunset))
+        .attr("height", height)
+        .attr("fill", "rgba(0, 0, 0, 0.1)");
 }
+
 
         drawChart();
 
