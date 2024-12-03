@@ -25,7 +25,6 @@
         .dot:hover {
             stroke: #1F305E;
             stroke-width: 2;
-            r: 6;
         }
 
         .axis path,
@@ -76,8 +75,62 @@
 #beach-selector:hover {
     background-color: #e6e6e6;
 }
+#dropdown-container {
+    display: flex;
+    align-items: left;
+    justify-content: left;
+    margin-bottom: 20px;
+    gap: 10px; /* Space between elements */
+}
+
+#dropdown-container label {
+    font-size: 16px;
+    font-weight: normal;
+    margin-right: 10px;
+    color: #1F305E;
+}
+
+#dropdown-container button {
+    background-color: #1F305E;
+    color: white;
+    border: none;
+    padding: 8px 12px; /* Comfortable size for buttons */
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#dropdown-container button:hover {
+    background-color: #163056;
+}
+
+#dropdown-container button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#date-selector {
+    font-size: 16px; /* Slightly larger for readability */
+    font-weight: normal;
+    color: #1F305E;
+    padding: 8px 16px;
+    border: 1px solid #1F305E;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    cursor: pointer;
+    outline: none;
+}
+
+#date-selector:hover {
+    background-color: #e6e6e6;
+}
+
+
+
 
     </style>
+
 </head>
 <body>
     <div id="dropdown-container">
@@ -85,54 +138,151 @@
         <select id="beach-selector">
             <option value="yaverland">Yaverland</option>
         </select>
+
     </div>
+    <div id="dropdown-container">
+        <label for="date-selector">Select Date:</label>
+        <button id="left-button">←</button>
+        <select id="date-selector">
+            <option value="2024-12-03">Today</option>
+            <option value="2024-12-04">2024-12-04</option>
+            <option value="2024-12-05">2024-12-05</option>
+            <option value="2024-12-06">2024-12-06</option>
+            <option value="2024-12-07">2024-12-07</option>
+            <option value="2024-12-08">2024-12-08</option>
+            <option value="2024-12-09">2024-12-09</option>
+        </select>
+        <button id="right-button">→</button>
+    </div>
+    
     <div id="chart-container">
         <svg></svg>
     </div>
     <div class="tooltip" style="display: none;"></div>
     <script>
-        const data = [
-            { "EventType": "HighWater", "DateTime": "2024-12-03T00:20:16.667", "Height": 3.9505325748448006 },
-            { "EventType": "LowWater", "DateTime": "2024-12-03T05:38:07.5", "Height": 1.2396514528157736 },
-            { "EventType": "HighWater", "DateTime": "2024-12-03T12:27:22.5", "Height": 3.97294046691819 },
-            { "EventType": "LowWater", "DateTime": "2024-12-03T17:58:57.5", "Height": 1.0794041971876254 },
-            { "EventType": "HighWater", "DateTime": "2024-12-04T00:55:45.833", "Height": 3.9513589017562913 }
-        ];
+  
+
+  const data = [
+    { "EventType": "HighWater", "DateTime": "2024-12-03T00:20:16.667", "Height": 3.9505325748448006 },
+    { "EventType": "LowWater", "DateTime": "2024-12-03T05:38:07.5", "Height": 1.2396514528157736 },
+    { "EventType": "HighWater", "DateTime": "2024-12-03T12:27:22.5", "Height": 3.97294046691819 },
+    { "EventType": "LowWater", "DateTime": "2024-12-03T17:58:57.5", "Height": 1.0794041971876254 },
+    { "EventType": "HighWater", "DateTime": "2024-12-04T00:55:45.833", "Height": 3.9513589017562913 },
+    { "EventType": "LowWater", "DateTime": "2024-12-04T06:16:40", "Height": 1.2592940655986786 },
+    { "EventType": "HighWater", "DateTime": "2024-12-04T13:01:50.833", "Height": 3.9283883349868889 },
+    { "EventType": "LowWater", "DateTime": "2024-12-04T18:38:32.5", "Height": 1.0940626184304081 },
+    { "EventType": "HighWater", "DateTime": "2024-12-05T01:36:19.167", "Height": 3.9192466589683788 },
+    { "EventType": "LowWater", "DateTime": "2024-12-05T06:58:20", "Height": 1.3107721735913973 },
+    { "EventType": "HighWater", "DateTime": "2024-12-05T13:41:23.333", "Height": 3.8522881576185939 },
+    { "EventType": "LowWater", "DateTime": "2024-12-05T19:21:15", "Height": 1.1478873055276642 },
+    { "EventType": "HighWater", "DateTime": "2024-12-06T02:23:58.333", "Height": 3.85447335898702 },
+    { "EventType": "LowWater", "DateTime": "2024-12-06T07:44:10", "Height": 1.4010490508365985 },
+    { "EventType": "HighWater", "DateTime": "2024-12-06T14:28:01.667", "Height": 3.7451899070814569 },
+    { "EventType": "LowWater", "DateTime": "2024-12-06T20:09:10", "Height": 1.2423344724338126 },
+    { "EventType": "HighWater", "DateTime": "2024-12-07T03:20:45", "Height": 3.7765169572214843 },
+    { "EventType": "LowWater", "DateTime": "2024-12-07T08:38:20", "Height": 1.5192817339219684 },
+    { "EventType": "HighWater", "DateTime": "2024-12-07T15:25:49.167", "Height": 3.6276775812850612 },
+    { "EventType": "LowWater", "DateTime": "2024-12-07T21:06:27.5", "Height": 1.3576005319317603 },
+    { "EventType": "HighWater", "DateTime": "2024-12-08T04:23:36.667", "Height": 3.7171522551856957 },
+    { "EventType": "LowWater", "DateTime": "2024-12-08T09:43:57.5", "Height": 1.6272239818129215 },
+    { "EventType": "HighWater", "DateTime": "2024-12-08T16:33:45", "Height": 3.5406679719308793 },
+    { "EventType": "LowWater", "DateTime": "2024-12-08T22:17:17.5", "Height": 1.4491109123747097 },
+    { "EventType": "HighWater", "DateTime": "2024-12-09T05:29:30.833", "Height": 3.7061701906864455 },
+    { "EventType": "LowWater", "DateTime": "2024-12-09T11:09:22.5", "Height": 1.6542856286931735 },
+    { "EventType": "HighWater", "DateTime": "2024-12-09T17:45:44.167", "Height": 3.5261535251599194 },
+    { "EventType": "LowWater", "DateTime": "2024-12-09T23:40:20", "Height": 1.4557413095265703 }
+];
+
+
+// Initialize selectedDate with today's date
+let selectedDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+
+// Add event listener to the dropdown
+document.querySelector("#date-selector").addEventListener("change", (event) => {
+    selectedDate = event.target.value; // Update selectedDate when dropdown changes
+    drawChart(selectedDate); // Redraw chart for the selected date
+});
+
+// Add event listeners for the left and right buttons
+document.querySelector("#left-button").addEventListener("click", () => {
+    updateSelectedDate(-1); // Move to the previous date
+});
+
+document.querySelector("#right-button").addEventListener("click", () => {
+    updateSelectedDate(1); // Move to the next date
+});
+
+// Function to update selectedDate and sync dropdown
+function updateSelectedDate(offset) {
+    const dateSelector = document.querySelector("#date-selector");
+    const options = Array.from(dateSelector.options);
+    let currentIndex = options.findIndex(option => option.value === selectedDate);
+
+    if (currentIndex !== -1) {
+        const newIndex = currentIndex + offset;
+
+        if (newIndex >= 0 && newIndex < options.length) {
+            selectedDate = options[newIndex].value; // Update selectedDate
+            dateSelector.value = selectedDate; // Sync dropdown to selectedDate
+            drawChart(selectedDate); // Redraw chart for the updated date
+        }
+    }
+}
+
+// Initial rendering for today's date
+drawChart(selectedDate);
+
+
 
         const parseDate = d3.isoParse;
         data.forEach(d => d.DateTime = parseDate(d.DateTime));
 
-        function generatePredictions(data) {
-            const predictions = [];
-            const twelfths = [1, 2, 3, 3, 2, 1]; // Rule of twelfths increments
 
-            for (let i = 0; i < data.length - 1; i++) {
-                const start = data[i];
-                const end = data[i + 1];
-                const interval = (end.DateTime - start.DateTime) / (6 * 60 * 60 * 1000); // Time interval for six steps
-                const totalChange = end.Height - start.Height;
+        function generatePredictions(data, selectedDate) {
+    const predictions = [];
+    const twelfths = [1, 2, 3, 3, 2, 1]; // Rule of twelfths increments
 
-                predictions.push(start); // Add the starting point
+    for (let i = 0; i < data.length - 1; i++) {
+        const start = data[i];
+        const end = data[i + 1];
+        const interval = (end.DateTime - start.DateTime) / (6 * 60 * 60 * 1000); // Time interval for six steps
+        const totalChange = end.Height - start.Height;
 
-                let currentTime = new Date(start.DateTime);
-                twelfths.forEach(twelfth => {
-                    const increment = (twelfth / 12) * totalChange;
-                    currentTime = new Date(currentTime.getTime() + interval * 60 * 60 * 1000);
-                    predictions.push({
-                        DateTime: currentTime,
-                        Height: predictions[predictions.length - 1].Height + increment,
-                    });
-                });
-            }
+        predictions.push(start); // Add the starting point
 
-            predictions.push(data[data.length - 1]); // Add the last point
-            return predictions.filter(d => d.DateTime >= new Date("2024-12-03T00:00:00") && d.DateTime < new Date("2024-12-04T00:00:00"));
-        }
+        let currentTime = new Date(start.DateTime);
+        twelfths.forEach(twelfth => {
+            const increment = (twelfth / 12) * totalChange;
+            currentTime = new Date(currentTime.getTime() + interval * 60 * 60 * 1000);
+            predictions.push({
+                DateTime: currentTime,
+                Height: predictions[predictions.length - 1].Height + increment,
+            });
+        });
+    }
+
+    predictions.push(data[data.length - 1]); // Add the last point
+
+    // Filter predictions for the selected date
+  // Adjust start of day to include 2 hours from the previous day (23:00)
+const startOfDay = new Date(`${selectedDate}T00:00:00`);
+startOfDay.setHours(startOfDay.getHours() - 1); // Adjust to 23:00 of the previous day
+
+// Adjust end of day to include 2 hours into the next day (01:59)
+const endOfDay = new Date(`${selectedDate}T23:59:59`);
+endOfDay.setHours(endOfDay.getHours() + 2); // Extend to 01:59 of the next day
+
+
+    return predictions.filter(d => d.DateTime >= startOfDay && d.DateTime <= endOfDay);
+}
+
 
         function drawChart() {
-    const predictions = generatePredictions(data);
-    const sunrise = new Date("2024-12-03T07:46:00");
-    const sunset = new Date("2024-12-03T16:04:00");
+    const predictions = generatePredictions(data, selectedDate);
+    const sunrise = new Date(selectedDate + "T07:46:00");
+const sunset = new Date(selectedDate + "T16:04:00");
+
+    const now = new Date(); // Current time
 
     const container = d3.select("#chart-container");
     const svg = container.select("svg");
@@ -152,21 +302,38 @@
     const tooltip = d3.select(".tooltip");
 
     const x = d3.scaleTime()
-        .domain([new Date("2024-12-03T00:00:00"), new Date("2024-12-04T00:00:00")])
-        .range([0, width]);
+    .domain([
+        new Date(selectedDate + "T00:00:00"), 
+        new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() + 1))
+    ])
+    .range([0, width]);
+
 
     const y = d3.scaleLinear()
         .domain([1.0, d3.max(predictions, d => d.Height) + 1]) // Use the exact Height range
         .range([height, 0]);
 
-        g.append("g")
-    .attr("transform", `translate(0,${height})`)
-    .attr("class", "axis")
-    .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")))
-    .selectAll("text")
-    .style("text-anchor", "end")
-    .attr("transform", "rotate(-45)"); // Rotate labels 45 degrees
 
+         // Add clipping path
+    svg.append("defs")
+        .append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", width)
+        .attr("height", height);
+
+    // Add x-axis
+    g.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .attr("class", "axis")
+        .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("transform", "rotate(-45)");
+
+    // Add y-axis
     g.append("g")
         .attr("class", "axis")
         .call(d3.axisLeft(y));
@@ -176,12 +343,14 @@
         .y(d => y(d.Height))
         .curve(d3.curveCatmullRom);
 
+    // Add the trend line
     g.append("path")
         .datum(predictions)
         .attr("fill", "none")
         .attr("stroke", "#1F305E")
         .attr("stroke-width", 3)
-        .attr("d", line);
+        .attr("d", line)
+        .attr("clip-path", "url(#clip)"); // Apply the clipping path;
 
     g.selectAll("circle")
         .data(predictions)
@@ -192,13 +361,14 @@
         .attr("cy", d => y(d.Height))
         .attr("r", 4)
         .attr("fill", "#1F305E")
+        .attr("clip-path", "url(#clip)") // Apply the clipping path;
         .on("mouseover", (event, d) => {
             tooltip.style("display", "block")
                 .html(`Time: ${d3.timeFormat("%H:%M:%S")(d.DateTime)}<br>Height: ${d.Height.toFixed(2)}m`);
         })
         .on("mousemove", event => {
-            tooltip.style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 20) + "px");
+            tooltip.style("left", `${event.pageX + 10}px`)
+                .style("top", `${event.pageY - 20}px`);
         })
         .on("mouseout", () => {
             tooltip.style("display", "none");
@@ -238,36 +408,38 @@
         .attr("height", height)
         .attr("fill", "rgba(0, 0, 0, 0.2)");
 
-       // Add sunrise icon
+    // Add sunrise icon
 g.append("g")
     .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="20" fill="orange" />
-        <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
-        <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
-        <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-        <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-        <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-        <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
-        <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-        <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-        <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
-    </svg>`)
+            <circle cx="50" cy="50" r="20" fill="orange" />
+            <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
+            <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
+            <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
+            <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
+            <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
+            <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2            <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
+            <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
+            <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
+        </svg>
+    `)
     .attr("transform", `translate(${x(sunrise) - 12}, ${height + 10})`);
 
-    // Add sunset icon
+// Add sunset icon
 g.append("g")
-    .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="20" fill="orange" />
-        <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
-        <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
-        <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-        <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-        <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-        <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-        <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-        <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
-        <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
-    </svg>`)
+    .html(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="20" fill="orange" />
+            <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
+            <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
+            <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
+            <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
+            <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
+            <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
+            <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
+            <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
+            <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
+        </svg>
+    `)
     .attr("transform", `translate(${x(sunset) - 12}, ${height + 10})`);
 
 
@@ -276,10 +448,13 @@ g.append("g")
 
 
 
+
         drawChart();
 
         // Redraw chart on window resize
         window.addEventListener("resize", drawChart);
+
+   
     </script>
 </body>
 </html>
