@@ -1,0 +1,8 @@
+Cowes: 0060
+Ryde: 0058
+Bembridge Approach: 0053B
+Sandown: 0053
+Ventnor: 0051
+Freshwater Bay: 0048
+Totland Bay: 0046
+Yarmouth: 0045
