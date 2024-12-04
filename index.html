@@ -125,9 +125,131 @@
 #date-selector:hover {
     background-color: #e6e6e6;
 }
+/* Info Section Styling */
+#info-section {
+    display: flex;
+    gap: 20px;
+}
+
+/* Tides Section Styling */
+#high-tide-low-tide {
+    background: linear-gradient(to bottom right, #005f73, #0a9396); /* Darker blue gradient */
+    color: #ffffff; /* Bright white for text */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: "Arial", sans-serif;
+    text-align: center;
+    flex: 1;
+}
+
+#high-tide-low-tide h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+}
+
+#high-tide-low-tide div {
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.15); /* Semi-transparent for contrast */
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* General Info Section Styling */
+#info-section {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Allows sections to wrap on smaller screens */
+    padding: 0; /* No padding to ensure alignment with the container */
+    box-sizing: border-box; /* Ensures internal padding doesn't increase width */
+    width: 100%;
+}
+
+/* Tides Section Styling */
+#high-tide-low-tide {
+    background: linear-gradient(to bottom right, #005f73, #0a9396); /* Darker blue gradient */
+    color: #ffffff; /* Bright white for text */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    font-family: "Arial", sans-serif;
+    text-align: center;
+    flex: 1; /* Shares space with sunrise-sunset section */
+    min-width: 300px; /* Prevents it from shrinking too much */
+    box-sizing: border-box; /* Includes padding in the width calculation */
+}
+
+#high-tide-low-tide h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+}
+
+#high-tide-low-tide div {
+    margin: 10px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.15); /* Semi-transparent for contrast */
+    border-radius: 5px;
+    font-size: 16px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Sunrise and Sunset Section Styling */
+#sunrise-sunset-info {
+    display: flex;
+    gap: 10px;
+    background: linear-gradient(to bottom, #ffa500, #ff4500); /* Warm sunrise/sunset gradient */
+    color: #ffffff; /* Bright white for text */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+    font-family: "Arial", sans-serif;
+    justify-content: space-between;
+    text-align: center;
+    flex: 1; /* Shares space with high-tide-low-tide */
+    min-width: 300px; /* Prevents it from shrinking too much */
+    box-sizing: border-box; /* Includes padding in the width calculation */
+}
+
+/* Mini Blocks for Sunrise and Sunset */
+#sunrise-sunset-info .sunrise, #sunrise-sunset-info .sunset {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1); /* Semi-transparent for contrast */
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
 
 
+/* Responsive Layout for Smaller Screens */
+@media (max-width: 768px) {
+    #info-section {
+        flex-direction: column; /* Stacks the sections vertically */
+        gap: 10px; /* Adjusts gap for smaller screens */
+    }
 
+    #high-tide-low-tide, #sunrise-sunset-info {
+        flex: unset; /* Reset the flex property */
+        width: 100%; /* Full width for both sections */
+    }
+
+    #sunrise-sunset-info {
+        margin-top: 10px; /* Adds spacing between the two sections */
+    }
+}
 
     </style>
 
@@ -143,15 +265,7 @@
     <div id="dropdown-container">
         <label for="date-selector">Select Date:</label>
         <button id="left-button">←</button>
-        <select id="date-selector">
-            <option value="2024-12-03">Today</option>
-            <option value="2024-12-04">2024-12-04</option>
-            <option value="2024-12-05">2024-12-05</option>
-            <option value="2024-12-06">2024-12-06</option>
-            <option value="2024-12-07">2024-12-07</option>
-            <option value="2024-12-08">2024-12-08</option>
-            <option value="2024-12-09">2024-12-09</option>
-        </select>
+        <select id="date-selector"></select>
         <button id="right-button">→</button>
     </div>
     
@@ -159,8 +273,27 @@
         <svg></svg>
     </div>
     <div class="tooltip" style="display: none;"></div>
+    <div id="info-section">
+        <div id="high-tide-low-tide"></div>
+        <div id="sunrise-sunset-info"></div>
+    </div>
+    
     <script>
-  
+  // JavaScript to populate the dropdown
+  const selectElement = document.getElementById("date-selector");
+    const numberOfDays = 7; // Number of days to include
+    const today = new Date();
+
+    for (let i = 0; i < numberOfDays; i++) {
+        const option = document.createElement("option");
+        const date = new Date(today); // Create a new date object
+        date.setDate(today.getDate() + i); // Increment days
+        const dateString = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+
+        option.value = dateString;
+        option.textContent = i === 0 ? "Today" : dateString;
+        selectElement.appendChild(option);
+    }
 
   const data = [
     { "EventType": "HighWater", "DateTime": "2024-12-03T00:20:16.667", "Height": 3.9505325748448006 },
@@ -194,6 +327,13 @@
 ];
 
 
+// Parse DateTime in the data array to ensure they are valid Date objects
+data.forEach(d => {
+    if (!(d.DateTime instanceof Date)) {
+        d.DateTime = new Date(d.DateTime);
+    }
+});
+
 // Initialize selectedDate with today's date
 let selectedDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
 
@@ -201,6 +341,7 @@ let selectedDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
 document.querySelector("#date-selector").addEventListener("change", (event) => {
     selectedDate = event.target.value; // Update selectedDate when dropdown changes
     drawChart(selectedDate); // Redraw chart for the selected date
+    updateInfo(data, selectedDate); // Update tide and sun info
 });
 
 // Add event listeners for the left and right buttons
@@ -225,12 +366,14 @@ function updateSelectedDate(offset) {
             selectedDate = options[newIndex].value; // Update selectedDate
             dateSelector.value = selectedDate; // Sync dropdown to selectedDate
             drawChart(selectedDate); // Redraw chart for the updated date
+            updateInfo(data, selectedDate); // Update tide and sun info
         }
     }
 }
 
 // Initial rendering for today's date
 drawChart(selectedDate);
+updateInfo(data, selectedDate); // Call updateInfo when the page loads
 
 
 
@@ -275,6 +418,51 @@ endOfDay.setHours(endOfDay.getHours() + 2); // Extend to 01:59 of the next day
 
     return predictions.filter(d => d.DateTime >= startOfDay && d.DateTime <= endOfDay);
 }
+function updateInfo(data, selectedDate) {
+    // Filter the data for the selected day
+    const tidesForDate = data.filter(d =>
+        d.DateTime.toISOString().startsWith(selectedDate)
+    );
+
+    // Sort the tides chronologically
+    tidesForDate.sort((a, b) => a.DateTime - b.DateTime);
+
+    // Generate HTML for tide times and heights
+    const tideHtml = tidesForDate.map(tide => `
+        <div>
+            <strong>${tide.EventType === "HighWater" ? "High Tide" : "Low Tide"}</strong>: ${d3.timeFormat("%H:%M")(tide.DateTime)} (${tide.Height.toFixed(2)}m)
+        </div>
+    `).join("");
+
+    // Populate the Tide Info section
+    const tideInfoContainer = document.getElementById("high-tide-low-tide");
+    if (tideInfoContainer) {
+        tideInfoContainer.innerHTML = `<h3>Tide Times</h3>${tideHtml}`;
+    }
+
+    // Define sunrise and sunset times for the selected day
+    const sunrise = new Date(`${selectedDate}T07:46:00`);
+    const sunset = new Date(`${selectedDate}T16:04:00`);
+
+    // Generate HTML for sunrise and sunset times
+    const sunHtml = `
+        <div class="sunrise">
+            <div class="sunrise-text">Sunrise</div>
+            <div class="time">${d3.timeFormat("%H:%M")(sunrise)}</div>
+        </div>
+        <div class="sunset">
+            <div class="sunset-text">Sunset</div>
+            <div class="time">${d3.timeFormat("%H:%M")(sunset)}</div>
+        </div>
+    `;
+
+    // Populate the Sun Info section
+    const sunInfoContainer = document.getElementById("sunrise-sunset-info");
+    if (sunInfoContainer) {
+        sunInfoContainer.innerHTML = `${sunHtml}`;
+    }
+}
+
 
 
         function drawChart() {
@@ -335,8 +523,12 @@ const sunset = new Date(selectedDate + "T16:04:00");
 
     // Add y-axis
     g.append("g")
-        .attr("class", "axis")
-        .call(d3.axisLeft(y));
+    .attr("class", "axis")
+    .call(
+        d3.axisLeft(y)
+            .ticks(Math.ceil(d3.max(predictions, d => d.Height))) // Control number of ticks
+            .tickFormat(d3.format(".0f")) // Force integers
+    );
 
     const line = d3.line()
         .x(d => x(d.DateTime))
@@ -393,6 +585,26 @@ const sunset = new Date(selectedDate + "T16:04:00");
         .attr("stroke-width", 2)
         .attr("stroke-dasharray", "4 4");
 
+        // Current time line
+    if (now >= x.domain()[0] && now <= x.domain()[1]) {
+        g.append("line")
+            .attr("x1", x(now))
+            .attr("x2", x(now))
+            .attr("y1", 0)
+            .attr("y2", height)
+            .attr("stroke", "green")
+            .attr("stroke-width", 2)
+            .attr("stroke-dasharray", "3 3");
+
+        // Add time label at the bottom axis
+        g.append("text")
+            .attr("x", x(now))
+            .attr("y", height + 20) // Position below the x-axis
+            .attr("fill", "green")
+            .attr("font-size", "12px")
+            .style("text-anchor", "middle")
+            .text(d3.timeFormat("%H:%M")(now));
+        }
     // Add subtle shading
     g.insert("rect", ":first-child")
         .attr("x", 0)
@@ -409,38 +621,38 @@ const sunset = new Date(selectedDate + "T16:04:00");
         .attr("fill", "rgba(0, 0, 0, 0.2)");
 
     // Add sunrise icon
-g.append("g")
-    .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="20" fill="orange" />
-            <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
-            <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
-            <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-            <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-            <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-            <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2            <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-            <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-            <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
-        </svg>
-    `)
-    .attr("transform", `translate(${x(sunrise) - 12}, ${height + 10})`);
+// g.append("g")
+//     .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
+//             <circle cx="50" cy="50" r="20" fill="orange" />
+//             <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
+//             <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
+//             <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
+//             <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
+//             <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
+//             <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2            <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
+//             <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
+//             <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
+//         </svg>
+//     `)
+//     .attr("transform", `translate(${x(sunrise) - 12}, ${height + 10})`);
 
-// Add sunset icon
-g.append("g")
-    .html(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="20" fill="orange" />
-            <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
-            <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
-            <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-            <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-            <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-            <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-            <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-            <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
-            <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
-        </svg>
-    `)
-    .attr("transform", `translate(${x(sunset) - 12}, ${height + 10})`);
+// // Add sunset icon
+// g.append("g")
+//     .html(`
+//         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
+//             <circle cx="50" cy="50" r="20" fill="orange" />
+//             <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
+//             <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
+//             <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
+//             <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
+//             <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
+//             <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
+//             <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
+//             <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
+//             <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
+//         </svg>
+//     `)
+//     .attr("transform", `translate(${x(sunset) - 12}, ${height + 10})`);
 
 
 
