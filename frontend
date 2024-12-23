@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Isle of Wight Map - Beaches</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Roboto', Arial, sans-serif;
+            color: white;
+            background-color: #262626; /* Match map theme */
+        }
+
+        .banner {
+            position: relative;
+            z-index: 1000;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        .logo {
+            height: 30px;
+        }
+
+        .title {
+            font-size: 16px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .hamburger {
+            width: 30px;
+            height: 25px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .hamburger:hover {
+            transform: scale(1.02);
+        }
+
+        .hamburger span {
+            background-color: white;
+            height: 4px;
+            border-radius: 2px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger:hover span {
+            background-color: lightblue;
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            z-index: 1;
+            margin-top: -80px; /* Pull the map upwards to overlap the banner */
+            padding-top: 50px; /* Prevent content from being hidden behind the banner */
+            background-color: #262626; /* Match map theme */
+        }
+
+        .info-panel {
+            background-color: #333;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 800px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .info-header h3 {
+            margin: 0 0 10px;
+            font-size: 20px;
+            color: lightblue;
+        }
+
+        .info-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-item {
+            flex: 1;
+            margin: 0 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #444;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+            text-align: center;
+        }
+
+        .info-item p {
+            margin: 5px 0;
+        }
+
+        .swim-check {
+            font-size: 18px;
+            font-weight: bold;
+            color: lightgreen;
+        }
+
+        .custom-marker {
+            background-color: white;
+            border: 2px solid #000;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: block;
+        }
+
+        .custom-marker:hover {
+            background-color: lightgrey;
+            border-color: lightgrey;
+            cursor: pointer;
+        }
+
+        .selected-marker {
+            background-color: lightblue;
+            border: 3px solid lightblue;
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 0 10px 2px lightblue;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top banner -->
+    <div class="banner">
+        <img src="https://swimthewight.org.uk/wp-content/uploads/2023/07/cropped-cropped-cropped-stw-logo-2-1.png" alt="Logo" class="logo" />
+        <div class="title">Swim The Wight</div>
+        <div class="hamburger" id="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+
+    <!-- Hamburger menu content -->
+    <div class="menu-content" id="menu-content">
+        <a href="#">Home</a>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Support</a>
+    </div>
+
+    <!-- Map -->
+    <div id="map"></div>
+
+    <div class="info-panel">
+        <div class="info-header">
+            <h3 id="selected-beach-name">None</h3>
+        </div>
+        <div class="info-content">
+            <div class="info-item weather">
+                <p>Sunny</p>
+                <p>15&deg;C</p>
+                <p>Wind: 10km/h</p>
+            </div>
+            <div class="info-item tide">
+                <p>High Tide: 3:00 PM</p>
+                <p>Low Tide: 9:00 AM</p>
+            </div>
+            <div class="info-item swim-check">
+                <p>&#10004; Yes, you should swim</p>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        const map = L.map('map', {
+            attributionControl: false,
+            zoomControl: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            dragging: false,
+            center: [50.68847, -1.3034],
+            zoom: 10
+        });
+
+        // Add CartoDB DarkMatter tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20,
+            detectRetina: true
+        }).addTo(map);
+
+        // Define beaches as points of interest
+        const beaches = [
+            { name: "Shanklin", coords: [50.627777, -1.177225] },
+            { name: "Sandown", coords: [50.651659, -1.160827] },
+            { name: "Ventnor", coords: [50.594139, -1.208685] },
+            { name: "Compton Bay", coords: [50.658917, -1.455827] },
+            { name: "Ryde", coords: [50.729486, -1.162450] },
+            { name: "Yaverland", coords: [50.665960, -1.144083] },
+            { name: "Colwell", coords: [50.682059, -1.532614] }
+        ];
+
+        // Initialize selected marker reference
+        let selectedMarker = null;
+
+        // Function to update the selected marker
+        function selectMarker(beach, markerElement) {
+            if (selectedMarker) {
+                selectedMarker.classList.remove('selected-marker');
+            }
+
+            markerElement.classList.add('selected-marker');
+            selectedMarker = markerElement;
+            document.getElementById('selected-beach-name').textContent = `${beach.name}`;
+        }
+
+        // Add markers to the map
+        beaches.forEach(beach => {
+            const marker = L.divIcon({ className: 'custom-marker' });
+
+            const markerInstance = L.marker(beach.coords, { icon: marker })
+                .addTo(map)
+                .on('click', () => {
+                    const markerElement = markerInstance._icon;
+                    selectMarker(beach, markerElement);
+                });
+
+            if (beach.name === "Sandown") {
+                setTimeout(() => {
+                    const markerElement = markerInstance._icon;
+                    selectMarker(beach, markerElement);
+                }, 0);
+            }
+        });
+
+        // Hamburger menu toggle
+        const hamburger = document.getElementById('hamburger');
+        const menuContent = document.getElementById('menu-content');
+        hamburger.addEventListener('click', () => {
+            menuContent.style.display = menuContent.style.display === 'block' ? 'none' : 'block';
+        });
+    </script>
