@@ -87,24 +87,54 @@ main {
 
         .info-content {
   display: flex;
-  flex:1;
-  justify-content: space-between;
-  align-items: stretch;
+  flex-direction: column;
   gap: 10px;
-  padding: 0px; /* ensures consistent side spacing */
-  box-sizing: border-box;
 }
 
+.info-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* Base style for all info boxes */
 .info-item {
   flex: 1;
   padding: 10px;
   border-radius: 8px;
   background-color: #121212;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  color: white;
   text-align: center;
   box-sizing: border-box;
-  padding: 10px 16px; /* Match beach description */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
+
+/* Weather-specific adjustments layered on top */
+.weather-widget {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px; /* Space between icon and text */
+}
+
+.weather-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+
 
 
         .info-item p {
@@ -399,7 +429,7 @@ svg {
   display: flex;
   align-items: center; /* 👈 Align image and text vertically */
   gap: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 10px;
   background-color: #1a1a1a;
   border-radius: 10px;
@@ -520,6 +550,120 @@ svg {
 .heart-icon.bounce {
   animation: bounce 0.4s ease;
 }
+.weather-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+}
+
+.weather-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.weather-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+#weather-icon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+#weather-temp-big {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.unit {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.weather-right p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #ddd;
+}
+#uv-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.uv-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.uv-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.uv-label {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.uv-bar {
+  position: relative;
+  width: 80%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.uv-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #7dd3fc, #facc15, #f87171);
+  border-radius: 4px;
+  opacity: 0.3;
+}
+
+#uv-indicator-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+#uv-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 6px 3x rgba(255, 255, 255, 0.5);
+  }
+}
 
 
 
@@ -554,23 +698,56 @@ svg {
               </div>
               
           
-            <div class="info-content">
-              <div class="info-item tide" id="tide-box"></div>
-          
-              <div id="weather-box" class="info-item weather-widget">
-                <div class="weather-left">
-                  <div id="weather-icon">☁️</div>
-                  <div id="weather-temp-big">--</div>
-                  <div class="unit">°C</div>
+              <div class="info-content">
+                <!-- Row 1 -->
+                <div class="info-row">
+                  <div class="info-item tide" id="tide-box"></div>
+              
+                  <div id="weather-box" class="info-item">
+                    <div class="weather-inner">
+                      <div class="weather-left">
+                        <div id="weather-icon">☁️</div>
+                        <div id="weather-temp-big">--</div>
+                        <div class="unit">°C</div>
+                      </div>
+                      <div class="weather-right">
+                        <p id="weather-condition-text">Condition: --</p>
+                        <p id="weather-rain">Precipitation: --%</p>
+                        <p id="weather-humidity">Humidity: --%</p>
+                        <p id="weather-wind">Wind: -- km/h</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  
                 </div>
-                <div class="weather-right">
-                  <p id="weather-condition-text">Condition: --</p>
-                  <p id="weather-rain">Precipitation: --%</p>
-                  <p id="weather-humidity">Humidity: --%</p>
-                  <p id="weather-wind">Wind: -- km/h</p>
+              
+                <!-- Row 2 -->
+                <div class="info-row">
+                    <div id="uv-box" class="info-item">
+                        <h3>UV Index</h3>
+                        <div class="uv-inner">
+                          <div id="uv-index-value" class="uv-value">--</div>
+                          <div id="uv-level" class="uv-label">--</div>
+                          <div class="uv-bar">
+                            <div class="uv-bar-fill" id="uv-bar-fill"></div>
+                            <div id="uv-indicator-wrapper">
+                                <div id="uv-indicator"></div>
+                              </div>
+                              
+                          </div>
+                        </div>
+                      </div>
+                      
+              
+                  <div class="info-item">
+                    <h3>More Info</h3>
+                    <p>Placeholder for future data.</p>
+                  </div>
                 </div>
               </div>
-            </div>
+              
+              
           
             <div id="chart-section">
               <div id="date-selector"></div>
@@ -840,7 +1017,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     tidesToShow.forEach((event, index) => {
         const isLow = event.EventType === "LowWater";
-        const label = isLow ? "Low Water" : "High Water";
+        const label = isLow ? "Low Water in" : "High Water in";
         const arrow = isLow ? "⬇️" : "⬆️";
 
         const diffMs = event.DateTime - now;
@@ -872,6 +1049,7 @@ if (tideIsRising) {
 
         container.appendChild(block);
     });
+    
 }
 function getRisingArrowSVG(className = '') {
     return `
@@ -942,19 +1120,44 @@ function getFallingArrowSVG(className = '') {
 
     updateTideDataForDate();
     drawTideChart();
-      // Update beach description + image
-  const descriptionBox = document.getElementById("beach-description-box");
-  const image = document.getElementById("beach-image");
-  const descText = document.getElementById("beach-description-text");
+      // Update beach description + imageconst descriptionBox = document.getElementById("beach-description-box");
+const image = document.getElementById("beach-image");
+const descText = document.getElementById("beach-description-text");
 
-  const beachData = beachDescriptions[beach.name];
-  if (beachData) {
-    image.src = beachData.image;
-    descText.textContent = beachData.text;
-  } else {
-    image.src = "";
-    descText.textContent = "No description available for this beach.";
-  }
+const beachData = beachDescriptions[beach.name];
+if (beachData) {
+  image.src = beachData.image;
+} else {
+  image.src = "";
+}
+
+// Get tide height
+const now = new Date();
+const predictions = generatePredictions(stationData, window.selectedDate);
+const closestPrediction = predictions.reduce((a, b) =>
+  Math.abs(a.DateTime - now) < Math.abs(b.DateTime - now) ? a : b
+);
+const currentTideHeight = closestPrediction?.Height?.toFixed(2) ?? "--";
+
+// Get wind description
+const windSpeed = window.currentWindSpeed || 0;
+let windDescription = "calm";
+if (windSpeed > 15) windDescription = "very windy";
+else if (windSpeed > 8) windDescription = "a bit windy";
+
+// Basic swim condition (later we’ll customize per beach)
+let swimCondition = "decent for swimming";
+if (windSpeed > 15) swimCondition = "probably rough for swimming";
+else if (windSpeed < 5 && currentTideHeight > 1) swimCondition = "ideal for a swim";
+
+// ✅ Combine description + dynamic analysis
+descText.innerHTML = `
+  ${beachData?.text || "No description available for this beach."}<br><br>
+  The current tide height is <strong>${currentTideHeight}m</strong>, and it's <strong>${windDescription}</strong>, 
+  so conditions for swimming are <strong>${swimCondition}</strong>.<br><br>
+  <em>Note: swim suitability will later be tailored to each beach.</em>
+`;
+
 }
 
 
@@ -1071,63 +1274,69 @@ function updateWeatherForBeach(beach) {
         95: ["Thunderstorm", "⛈️"]
     };
 
-    const today = new Date().toISOString().split("T")[0];
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode,wind_speed_10m,precipitation_probability,relative_humidity_2m,uv_index&current_weather=true`)
+        .then(res => res.json())
+        .then(data => {
+            const current = data.current_weather;
+            const hourly = data.hourly;
+            
+            const now = new Date(current.time);
+            let closestIndex = 0;
+            let minDiff = Infinity;
 
-    // 🔁 Fetch weather and sunrise/sunset together using Promise.all
-    Promise.all([
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode,wind_speed_10m,precipitation_probability,relative_humidity_2m&current_weather=true`).then(res => res.json()),
-        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=sunrise,sunset&timezone=auto&start_date=${today}&end_date=${today}`).then(res => res.json())
-    ])
-    .then(([weatherData, sunData]) => {
-        // --- 🌡️ Weather Data ---
-        const current = weatherData.current_weather;
-        const hourly = weatherData.hourly;
+            hourly.time.forEach((t, i) => {
+                const diff = Math.abs(new Date(t) - now);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIndex = i;
+                }
+            });
+            
+            const temp = current.temperature ?? "--";
+            const wind = current.windspeed ?? "--";
+            window.currentWindSpeed = parseFloat(wind) || 0;
+            const rain = hourly.precipitation_probability?.[closestIndex] ?? "--";
+            const humidity = hourly.relative_humidity_2m?.[closestIndex] ?? "--";
+            const uvIndex = hourly.uv_index?.[closestIndex] ?? "--";
+            const code = current.weathercode;
+            const [conditionText, icon] = weatherCodes[code] || ["Unknown", "❓"];
 
-        const now = new Date(current.time);
-        let closestIndex = 0;
-        let minDiff = Infinity;
+            // 🌤️ Update weather
+            document.getElementById("weather-icon").textContent = icon;
+            document.getElementById("weather-temp-big").textContent = temp;
+            document.getElementById("weather-condition-text").textContent = conditionText;
+            document.getElementById("weather-rain").textContent = `Precipitation: ${rain}%`;
+            document.getElementById("weather-humidity").textContent = `Humidity: ${humidity}%`;
+            document.getElementById("weather-wind").textContent = `Wind: ${wind} km/h`;
 
-        hourly.time.forEach((t, i) => {
-            const diff = Math.abs(new Date(t) - now);
-            if (diff < minDiff) {
-                minDiff = diff;
-                closestIndex = i;
-            }
-        });
+            // 🌞 Update UV Box with dot indicator style
+const uvBox = document.getElementById("uv-box");
+const uvValueEl = document.getElementById("uv-index-value");
+const uvLevelEl = document.getElementById("uv-level");
+const uvIndicator = document.getElementById("uv-indicator");
 
-        const temp = current.temperature ?? "--";
-        const wind = current.windspeed ?? "--";
-        const rain = hourly.precipitation_probability?.[closestIndex] ?? "--";
-        const humidity = hourly.relative_humidity_2m?.[closestIndex] ?? "--";
-        const code = current.weathercode;
-        const [conditionText, icon] = weatherCodes[code] || ["Unknown", "❓"];
+if (uvBox && uvValueEl && uvLevelEl && uvIndicator) {
+    const uv = parseFloat(uvIndex);
+    uvValueEl.textContent = uv.toFixed(1);
 
-        document.getElementById("weather-icon").textContent = icon;
-        document.getElementById("weather-temp-big").textContent = temp;
-        document.getElementById("weather-condition-text").textContent = conditionText;
-        document.getElementById("weather-rain").textContent = `Precipitation: ${rain}%`;
-        document.getElementById("weather-humidity").textContent = `Humidity: ${humidity}%`;
-        document.getElementById("weather-wind").textContent = `Wind: ${wind} km/h`;
+    let level = "Low";
+    if (uv >= 3 && uv < 6) level = "Moderate";
+    else if (uv >= 6 && uv < 8) level = "High";
+    else if (uv >= 8) level = "Very High";
 
-        // --- 🌅 Sunrise / Sunset ---
-        const sunrise = sunData.daily.sunrise?.[0];
-        const sunset = sunData.daily.sunset?.[0];
+    uvLevelEl.textContent = level;
 
-        if (sunrise && sunset) {
-            window.sunriseTime = new Date(sunrise);
-            window.sunsetTime = new Date(sunset);
-            console.log("🌅 Sunrise:", window.sunriseTime.toLocaleTimeString(), "🌇 Sunset:", window.sunsetTime.toLocaleTimeString());
-        } else {
-            console.warn("Could not fetch sunrise/sunset times.");
-            window.sunriseTime = null;
-            window.sunsetTime = null;
-        }
-    })
-    .catch(err => {
-        console.error("Weather or sun data fetch failed:", err);
-        document.getElementById("weather-box").innerHTML = "<p>Unable to load weather data.</p>";
-    });
+    const uvPercent = Math.min(uv / 11, 1) * 100;
+    document.getElementById("uv-indicator-wrapper").style.left = `${uvPercent}%`;
+
 }
+
+        })
+        .catch(err => {
+            console.error("Weather fetch failed:", err);
+        });
+}
+
 
 
 
