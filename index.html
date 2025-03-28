@@ -3,400 +3,1241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tide Graph with Sunrise and Sunset</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <title>Interactive Isle of Wight Map - Beaches</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
-        body {
-            font-family: "Arial", sans-serif;
-            margin: 20px;
-        }
+        /* Hide scrollbar for Chrome, Safari, and Edge */
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+    display: none;
+}
 
-        .tooltip {
-            position: absolute;
-            background-color: rgba(255, 255, 255, 0.95);
-            border: 1px solid #1F305E;
-            padding: 8px;
-            font-size: 14px;
-            border-radius: 5px;
-            pointer-events: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+/* Hide scrollbar for Firefox */
+html, body {
+    scrollbar-width: none;
+    -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+    overflow-y: scroll; /* Ensure scrolling is enabled */
+}
 
-        .dot:hover {
-            stroke: #1F305E;
-            stroke-width: 2;
-        }
-
-        .axis path,
-        .axis line {
-            stroke: #1F305E;
-            stroke-width: 2;
-        }
-
-        .axis text {
-            font-family: "Arial", sans-serif;
-            font-size: 12px;
-            fill: #1F305E;
-        }
-
-        #chart-container {
+        html, body {
+            margin: 0;
+            padding: 0;
             width: 100%;
-            
+            display: flex;
+            flex-direction: column;
+            font-family: 'Roboto', Arial, sans-serif;
+            color: white;
+            background-color: #262626; /* Match map theme */
         }
 
-        svg {
+        .banner {
+            position: fixed;
+            z-index: 1000;
             width: 100%;
-            height: 100%;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-sizing: border-box;
         }
-        #dropdown-container {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
 
-#dropdown-container label {
-    font-size: 16px;
-    font-weight: bold;
-    margin-right: 10px;
-    color: #1F305E;
-}
+        .logo {
+            height: 30px;
+        }
 
-#beach-selector {
-    padding: 5px 10px;
-    font-size: 14px;
-    border: 1px solid #1F305E;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    color: #1F305E;
-    outline: none;
-    cursor: pointer;
-}
+        .title {
+            font-size: 16px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
 
-#beach-selector:hover {
-    background-color: #e6e6e6;
-}
-#dropdown-container {
-    display: flex;
-    align-items: left;
-    justify-content: left;
-    margin-bottom: 20px;
-    gap: 10px; /* Space between elements */
-}
+       
 
-#dropdown-container label {
-    font-size: 16px;
-    font-weight: normal;
-    margin-right: 10px;
-    color: #1F305E;
-}
-
-#dropdown-container button {
-    background-color: #1F305E;
-    color: white;
-    border: none;
-    padding: 8px 12px; /* Comfortable size for buttons */
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-#dropdown-container button:hover {
-    background-color: #163056;
-}
-
-#dropdown-container button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-#date-selector {
-    font-size: 16px; /* Slightly larger for readability */
-    font-weight: normal;
-    color: #1F305E;
-    padding: 8px 16px;
-    border: 1px solid #1F305E;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    cursor: pointer;
-    outline: none;
-}
-
-#date-selector:hover {
-    background-color: #e6e6e6;
-}
-/* Info Section Styling */
-#info-section {
-    display: flex;
-    gap: 20px;
-}
-
-/* Tides Section Styling */
-#high-tide-low-tide {
-    background: linear-gradient(to bottom right, #005f73, #0a9396); /* Darker blue gradient */
-    color: #ffffff; /* Bright white for text */
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    font-family: "Arial", sans-serif;
-    text-align: center;
-    flex: 1;
-}
-
-#high-tide-low-tide h3 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    border-bottom: 2px solid white;
-    padding-bottom: 5px;
-}
-
-#high-tide-low-tide div {
-    margin: 10px 0;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.15); /* Semi-transparent for contrast */
-    border-radius: 5px;
-    font-size: 16px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* General Info Section Styling */
-#info-section {
-    display: flex;
-    gap: 20px;
-    justify-content: space-between;
-    flex-wrap: wrap; /* Allows sections to wrap on smaller screens */
-    padding: 0; /* No padding to ensure alignment with the container */
-    box-sizing: border-box; /* Ensures internal padding doesn't increase width */
+#map {
+    
+    left: 0;
     width: 100%;
+    height: 300px; /* Set height */
+    z-index: 1;
+    background-color: #262626; /* Match map theme */
 }
+/* Main Content - Starts Below the Map */
+main {
 
-/* Tides Section Styling */
-#high-tide-low-tide {
-    background: linear-gradient(to bottom right, #005f73, #0a9396); /* Darker blue gradient */
-    color: #ffffff; /* Bright white for text */
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    font-family: "Arial", sans-serif;
-    text-align: center;
-    flex: 1; /* Shares space with sunrise-sunset section */
-    min-width: 300px; /* Prevents it from shrinking too much */
-    box-sizing: border-box; /* Includes padding in the width calculation */
 }
 
-#high-tide-low-tide h3 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    border-bottom: 2px solid white;
-    padding-bottom: 5px;
+.info-panel {
+  color: white;
+  border-radius: 10px;
+  padding: 20px 10px;
+  margin: 0 auto;
+  max-width: 800px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
-#high-tide-low-tide div {
-    margin: 10px 0;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.15); /* Semi-transparent for contrast */
-    border-radius: 5px;
-    font-size: 16px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        .info-header h3 {
+            margin: 0 0 40px;
+            font-size: 26px;
+            color: white;
+        }
+
+        .info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* Sunrise and Sunset Section Styling */
-#sunrise-sunset-info {
+.info-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* Base style for all info boxes */
+.info-item {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #121212;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  color: white;
+  text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Weather-specific adjustments layered on top */
+.weather-widget {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px; /* Space between icon and text */
+}
+
+.weather-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.weather-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+
+
+
+        .info-item p {
+            margin: 5px 0;
+        }
+
+        .swim-check {
+            font-size: 18px;
+            font-weight: bold;
+            color: lightgreen;
+        }
+
+        .custom-marker {
+            background-color: white;
+            border: 2px solid #000;
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            display: block;
+        }
+
+        .custom-marker:hover {
+            background-color: lightgrey;
+            border-color: lightgrey;
+            cursor: pointer;
+        }
+
+        .selected-marker {
+            background-color: lightblue;
+            border: 3px solid lightblue;
+            width: 16px;
+            height: 16px;
+            box-shadow: 0 0 10px 2px lightblue;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .tide-station-marker .diamond-marker {
+            width: 10px;
+            height: 10px;
+            background-color: deepskyblue;
+            transform: rotate(45deg);
+            box-shadow: 0 0 6px deepskyblue;
+            border-radius: 2px;
+        }
+        /* Date selector buttons */
+        #date-selector {
     display: flex;
-    gap: 10px;
-    background: linear-gradient(to bottom, #ffa500, #ff4500); /* Warm sunrise/sunset gradient */
-    color: #ffffff; /* Bright white for text */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
-    font-family: "Arial", sans-serif;
-    justify-content: space-between;
-    text-align: center;
-    flex: 1; /* Shares space with high-tide-low-tide */
-    min-width: 300px; /* Prevents it from shrinking too much */
-    box-sizing: border-box; /* Includes padding in the width calculation */
+    justify-content: center;
+    gap: 8px;
+    margin: 15px 0;
 }
 
-/* Mini Blocks for Sunrise and Sunset */
-#sunrise-sunset-info .sunrise, #sunrise-sunset-info .sunset {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.1); /* Semi-transparent for contrast */
-    padding: 15px;
-    border-radius: 10px;
+#date-selector button {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    width: 50px; /* Increase width for more space */
+    height: 50px; /* Increase height for more space */
+    padding: 8px 5px; /* Add padding */
+    font-size: 16px;
+    font-weight: bold;
+    border: 2px solid white;
+    border-radius: 50%; /* Make them circular */
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#date-selector button span {
+    font-size: 14px; /* Make day letter slightly smaller */
+    margin-bottom: 2px; /* Add space between letter and number */
+}
+
+#date-selector button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+#date-selector button.selected {
+    background-color: white;
+    color: black;
 }
 
 
-/* Responsive Layout for Smaller Screens */
-@media (max-width: 768px) {
-    #info-section {
-        flex-direction: column; /* Stacks the sections vertically */
-        gap: 10px; /* Adjusts gap for smaller screens */
-    }
-
-    #high-tide-low-tide, #sunrise-sunset-info {
-        flex: unset; /* Reset the flex property */
-        width: 100%; /* Full width for both sections */
-    }
-
-    #sunrise-sunset-info {
-        margin-top: 10px; /* Adds spacing between the two sections */
-    }
+#tide-chart-container {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
 }
+svg {
+    width: 100%;
+    height: auto;
+}
+
+.tooltip {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0) !important;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0) !important;
+    font-size: 14px;
+    pointer-events: none;
+    white-space: nowrap;
+    transition: all 0s ease-in-out;
+}
+.weather-widget {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  margin: 0 0px;
+  padding: 0px;
+  border-radius: 8px;
+  background-color: #121212;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  color: #fff; /* Light text for dark background */
+}
+
+.weather-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 16px;
+}
+
+#weather-icon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+#weather-temp-big {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.unit {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.weather-right p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #ddd;
+}
+#tide-box p {
+  font-size: 16px;
+  margin: 8px 0;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 0px 20px;
+  border-radius: 6px;
+}
+
+#tide-box .icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+#tide-box time {
+  color: #aaa;
+  font-size: 14px;
+  margin-left: 6px;
+}
+
+#tide-box .highlight {
+  background-color: #1a1a1a;
+  box-shadow: 0 0 10px rgba(135, 206, 250, 0.6); /* soft light blue glow */
+}
+
+.tide-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #7dd3fc;
+  font-weight: 500;
+  justify-content: center;
+}
+
+.tide-arrow {
+  width: 18px;
+  height: 18px;
+  stroke: #7dd3fc;
+}
+
+.tide-block {
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.tide-block.highlight {
+  background-color: #1a1a1a;
+  box-shadow: 0 0 10px rgba(135, 206, 250, 0.6);
+}
+
+.tide-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: #ccc;
+}
+
+.tide-label time {
+  font-size: 14px;
+  color: #999;
+  margin-left: auto;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.8;
+  }
+}
+
+.tide-arrow.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.info-item.tide {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Animated fill */
+.info-item.tide.rising::before,
+.info-item.tide.falling::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  z-index: 0;
+  background: linear-gradient(to top, rgba(125, 211, 252, 0.25), rgba(125, 211, 252, 0.15));
+}
+
+.info-item.tide.rising::before {
+  bottom: 0;
+  animation: fillUp 8s ease-in-out forwards;
+}
+
+.info-item.tide.falling::before {
+  bottom: 0;
+  height: 100%;
+  animation: drainDown 8s ease-in-out forwards;
+}
+
+@keyframes fillUp {
+  from { height: 0%; }
+  to { height: 100%; }
+}
+
+@keyframes drainDown {
+  from { height: 100%; }
+  to { height: 0%; }
+}
+
+/* Ensure content sits ABOVE the fill layer */
+#tide-box > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Keep the highlighted tide visually strong */
+.tide-block.highlight {
+  background-color: #1a1a1a;
+  z-index: 2;
+  position: relative;
+  box-shadow: 0 0 10px rgba(135, 206, 250, 0.6);
+}
+
+#beach-description {
+  display: flex;
+  align-items: center; /* 👈 Align image and text vertically */
+  gap: 15px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+#beach-image {
+  width: 120px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0; /* 👈 Prevent it from shrinking */
+}
+
+#beach-description-text {
+  font-size: 15px;
+  color: #ccc;
+  line-height: 1.5;
+}
+
+
+#chart-section {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+#date-selector {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+#current-time-point,
+#current-time-tooltip {
+  opacity: 1;
+  transition: opacity 0.4s ease;
+}
+
+#current-time-point.hidden,
+#current-time-tooltip.hidden {
+  opacity: 0;
+}
+.dropdown-toggle {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  margin-left: 8px;
+  cursor: pointer;
+  transform: rotate(0deg);
+  transition: transform 0.3s ease;
+}
+
+.dropdown-toggle[aria-expanded="false"] {
+  transform: rotate(-90deg);
+}
+
+.beach-description {
+  display: flex;
+  align-items: left;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  flex-wrap: wrap;
+  justify-content: left;
+}
+
+.video-container {
+  width: 250px;
+  height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+
+.video-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+#beach-description-text {
+  font-size: 15px;
+  color: #ccc;
+  max-width: 500px;
+  line-height: 1.4;
+}
+
+
+.beach-description.collapsed {
+  max-height: 0;
+  opacity: 0;
+  padding: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+#beach-image {
+  width: 100px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+#beach-description-text {
+  font-size: 15px;
+  color: #ccc;
+}
+.heart-icon {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: white;
+  margin-right: 8px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.heart-icon.favourited {
+  color: #f87171; /* Tailwind-ish soft red */
+  content: "♥";
+}
+
+@keyframes bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4); }
+  60%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.heart-icon.bounce {
+  animation: bounce 0.4s ease;
+}
+.weather-inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+}
+
+.weather-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.weather-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+#weather-icon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+#weather-temp-big {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.unit {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.weather-right p {
+  margin: 2px 0;
+  font-size: 14px;
+  color: #ddd;
+}
+#uv-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.uv-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.uv-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.uv-label {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.uv-bar {
+  position: relative;
+  width: 80%;
+  height: 8px;
+  background-color: #333;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.uv-bar-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #7dd3fc, #facc15, #f87171);
+  border-radius: 4px;
+  opacity: 0.3;
+}
+
+#uv-indicator-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+#uv-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+  animation: pulse-dot 2s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 4px 2px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 6px 3x rgba(255, 255, 255, 0.5);
+  }
+}
+
+
+
 
     </style>
-
 </head>
 <body>
-    <div id="dropdown-container">
-        <label for="beach-selector">Select Beach:</label>
-        <select id="beach-selector">
-            <option value="yaverland">Yaverland</option>
-        </select>
 
+    <!-- Top banner -->
+    <div class="banner">
+        <img src="https://swimthewight.org.uk/wp-content/uploads/2023/07/cropped-cropped-cropped-stw-logo-2-1.png" alt="Logo" class="logo">
+        <div class="title">Swim The Wight</div>
     </div>
-    <div id="dropdown-container">
-        <label for="date-selector">Select Date:</label>
-        <button id="left-button">←</button>
-        <select id="date-selector"></select>
-        <button id="right-button">→</button>
-    </div>
-    
-    <div id="chart-container">
-        <svg></svg>
-    </div>
-    <div class="tooltip" style="display: none;"></div>
-    <div id="info-section">
-        <div id="high-tide-low-tide"></div>
-        <div id="sunrise-sunset-info"></div>
-    </div>
-    
+
+    <!-- Map (Fixed at the top) -->
+    <div id="map"></div>
+
+    <!-- Main Content (Starts below the map) -->
+    <main>
+        <div class="info-panel">
+            <div class="info-header">
+                <h3 id="selected-beach-name-container">
+                  <button id="favourite-toggle" class="heart-icon" aria-pressed="false">♡</button>
+                  <span id="selected-beach-name">Sandown</span>
+                  <button id="toggle-description" class="dropdown-toggle" aria-expanded="true">▾</button>
+                </h3>
+              </div>
+              
+              <div id="beach-description" class="beach-description expanded">
+                <div class="video-container">
+                  <iframe
+                    src="https://www.youtube.com/embed/zITv7NFN0HI?autoplay=1&mute=1&playsinline=1&controls=0&modestbranding=1&showinfo=0&rel=0"
+                    frameborder="0"
+                    allow="autoplay; encrypted-media"
+                    allowfullscreen
+                    title="Live Beach Cam"
+                  ></iframe>
+                </div>
+              
+                <div id="beach-description-text">A live view from the beach. Check the waves in real time!</div>
+              </div>
+              
+              
+          
+              <div class="info-content">
+                <!-- Row 1 -->
+                <div class="info-row">
+                  <div class="info-item tide" id="tide-box"></div>
+              
+                  <div id="weather-box" class="info-item">
+                    <div class="weather-inner">
+                      <div class="weather-left">
+                        <div id="weather-icon">☁️</div>
+                        <div id="weather-temp-big">--</div>
+                        <div class="unit">°C</div>
+                      </div>
+                      <div class="weather-right">
+                        <p id="weather-condition-text">Condition: --</p>
+                        <p id="weather-rain">Precipitation: --%</p>
+                        <p id="weather-humidity">Humidity: --%</p>
+                        <p id="weather-wind">Wind: -- km/h</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  
+                </div>
+              
+                <!-- Row 2 -->
+                <div class="info-row">
+                    <div id="uv-box" class="info-item">
+                        <h3>UV Index</h3>
+                        <div class="uv-inner">
+                          <div id="uv-index-value" class="uv-value">--</div>
+                          <div id="uv-level" class="uv-label">--</div>
+                          <div class="uv-bar">
+                            <div class="uv-bar-fill" id="uv-bar-fill"></div>
+                            <div id="uv-indicator-wrapper">
+                                <div id="uv-indicator"></div>
+                              </div>
+                              
+                          </div>
+                        </div>
+                      </div>
+                      
+              
+                  <div class="info-item">
+                    <h3>More Info</h3>
+                    <p>Placeholder for future data.</p>
+                  </div>
+                </div>
+              </div>
+              
+              
+          
+            <div id="chart-section">
+              <div id="date-selector"></div>
+              <div id="tide-chart-container"></div>
+            </div>
+          </div>
+          
+    </main>
+
+</body>
+
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <!-- Load D3.js -->
+<script src="https://d3js.org/d3.v6.min.js"></script>
+
     <script>
-  // JavaScript to populate the dropdown
-  const selectElement = document.getElementById("date-selector");
-    const numberOfDays = 7; // Number of days to include
-    const today = new Date();
+        // ✅ Ensure selectedDate is set when the page loads
+if (!window.selectedDate) {
+    window.selectedDate = new Date().toISOString().split("T")[0]; // Default to today's date
+    console.log("✅ Setting default selected date:", window.selectedDate);
+}
+document.getElementById("toggle-description").addEventListener("click", () => {
+  const desc = document.getElementById("beach-description");
+  const toggle = document.getElementById("toggle-description");
+  const isExpanded = toggle.getAttribute("aria-expanded") === "true";
 
-    for (let i = 0; i < numberOfDays; i++) {
-        const option = document.createElement("option");
-        const date = new Date(today); // Create a new date object
-        date.setDate(today.getDate() + i); // Increment days
-        const dateString = date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+  desc.classList.toggle("collapsed", isExpanded);
+  toggle.setAttribute("aria-expanded", !isExpanded);
+});
+document.getElementById("favourite-toggle").addEventListener("click", () => {
+  const btn = document.getElementById("favourite-toggle");
+  const isFavourited = btn.classList.toggle("favourited");
 
-        option.value = dateString;
-        option.textContent = i === 0 ? "Today" : dateString;
-        selectElement.appendChild(option);
+  btn.setAttribute("aria-pressed", isFavourited);
+  btn.textContent = isFavourited ? "♥" : "♡";
+});
+
+// ✅ Call updateTideDataForDate() on page load
+document.addEventListener("DOMContentLoaded", function () {
+    updateTideDataForDate();
+});
+        // Initialize the map
+        const map = L.map('map', {
+            attributionControl: false,
+            zoomControl: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            dragging: false,
+            center: [50.68847, -1.3034],
+            zoom: 10
+        });
+    
+        // Add CartoDB DarkMatter tile layer
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20,
+            detectRetina: true
+        }).addTo(map);
+    
+        // Define beaches as points of interest
+        const beaches = [
+            { name: "Sandown", coords: [50.651659, -1.160827] },
+            { name: "Shanklin", coords: [50.627777, -1.177225] },
+            { name: "Ventnor", coords: [50.594139, -1.208685] },
+            { name: "Compton Bay", coords: [50.654810, -1.467071] },
+            { name: "Totland", coords: [50.682695, -1.544676] },
+            { name: "Colwell Bay", coords: [50.693213, -1.534249] },
+            { name: "Gurnard Bay", coords: [50.762630, -1.324066] },
+            { name: "East Cowes", coords: [50.759, -1.289] },
+            { name: "Osborne Bay", coords: [50.755122, -1.255789] },
+            { name: "Ryde Beach", coords: [50.731372, -1.149723] },
+            { name: "Appley Beach", coords: [50.727313, -1.138162] },
+            { name: "Seagrove Bay", coords: [50.717, -1.111] }
+        ];
+    
+        // Predefined tide station coordinates
+        const tideStations = {
+            "Ryde": [50.729486, -1.162450],
+            "Bembridge Approach": [50.685, -1.073],
+            "Totland Bay": [50.682695, -1.544676],
+            "Cowes": [50.763, -1.298],
+            "Sandown": [50.651659, -1.160827],
+            "Yarmouth": [50.705, -1.500],
+            "Ventnor": [50.594139, -1.208685],
+            "Freshwater Bay": [50.668, -1.526],
+            "Foreland": [50.685, -1.085]
+        };
+        
+        const beachDescriptions = {
+            "Sandown": {
+    image: "https://lh5.googleusercontent.com/p/AF1QipNTDVuQN1X-pRhtDOvkzgH88J6pzXJuqDTnaVEv=w408-h544-k-no",
+    text: "A long sandy beach popular for swimming and family fun, backed by a traditional promenade."
+        },
+        "Shanklin": {
+    image: "images/shanklin.jpg",
+    text: "Charming seafront with golden sands, a Victorian esplanade, and dramatic cliffs."
+  },
+  // Add more entries...
+};
+        // Function to calculate Haversine distance between two points
+        function haversineDistance(coord1, coord2) {
+    console.log("📍 Calculating distance between:", coord1, "and", coord2);
+
+    if (!coord1 || !coord2 || coord1.length < 2 || coord2.length < 2) {
+        console.warn("🚨 Invalid coordinates passed to haversineDistance!", { coord1, coord2 });
+        return Infinity; // Return a large number so it's ignored
     }
 
-  const data = [
-    { "EventType": "HighWater", "DateTime": "2024-12-03T00:20:16.667", "Height": 3.9505325748448006 },
-    { "EventType": "LowWater", "DateTime": "2024-12-03T05:38:07.5", "Height": 1.2396514528157736 },
-    { "EventType": "HighWater", "DateTime": "2024-12-03T12:27:22.5", "Height": 3.97294046691819 },
-    { "EventType": "LowWater", "DateTime": "2024-12-03T17:58:57.5", "Height": 1.0794041971876254 },
-    { "EventType": "HighWater", "DateTime": "2024-12-04T00:55:45.833", "Height": 3.9513589017562913 },
-    { "EventType": "LowWater", "DateTime": "2024-12-04T06:16:40", "Height": 1.2592940655986786 },
-    { "EventType": "HighWater", "DateTime": "2024-12-04T13:01:50.833", "Height": 3.9283883349868889 },
-    { "EventType": "LowWater", "DateTime": "2024-12-04T18:38:32.5", "Height": 1.0940626184304081 },
-    { "EventType": "HighWater", "DateTime": "2024-12-05T01:36:19.167", "Height": 3.9192466589683788 },
-    { "EventType": "LowWater", "DateTime": "2024-12-05T06:58:20", "Height": 1.3107721735913973 },
-    { "EventType": "HighWater", "DateTime": "2024-12-05T13:41:23.333", "Height": 3.8522881576185939 },
-    { "EventType": "LowWater", "DateTime": "2024-12-05T19:21:15", "Height": 1.1478873055276642 },
-    { "EventType": "HighWater", "DateTime": "2024-12-06T02:23:58.333", "Height": 3.85447335898702 },
-    { "EventType": "LowWater", "DateTime": "2024-12-06T07:44:10", "Height": 1.4010490508365985 },
-    { "EventType": "HighWater", "DateTime": "2024-12-06T14:28:01.667", "Height": 3.7451899070814569 },
-    { "EventType": "LowWater", "DateTime": "2024-12-06T20:09:10", "Height": 1.2423344724338126 },
-    { "EventType": "HighWater", "DateTime": "2024-12-07T03:20:45", "Height": 3.7765169572214843 },
-    { "EventType": "LowWater", "DateTime": "2024-12-07T08:38:20", "Height": 1.5192817339219684 },
-    { "EventType": "HighWater", "DateTime": "2024-12-07T15:25:49.167", "Height": 3.6276775812850612 },
-    { "EventType": "LowWater", "DateTime": "2024-12-07T21:06:27.5", "Height": 1.3576005319317603 },
-    { "EventType": "HighWater", "DateTime": "2024-12-08T04:23:36.667", "Height": 3.7171522551856957 },
-    { "EventType": "LowWater", "DateTime": "2024-12-08T09:43:57.5", "Height": 1.6272239818129215 },
-    { "EventType": "HighWater", "DateTime": "2024-12-08T16:33:45", "Height": 3.5406679719308793 },
-    { "EventType": "LowWater", "DateTime": "2024-12-08T22:17:17.5", "Height": 1.4491109123747097 },
-    { "EventType": "HighWater", "DateTime": "2024-12-09T05:29:30.833", "Height": 3.7061701906864455 },
-    { "EventType": "LowWater", "DateTime": "2024-12-09T11:09:22.5", "Height": 1.6542856286931735 },
-    { "EventType": "HighWater", "DateTime": "2024-12-09T17:45:44.167", "Height": 3.5261535251599194 },
-    { "EventType": "LowWater", "DateTime": "2024-12-09T23:40:20", "Height": 1.4557413095265703 }
-];
+    const toRad = (deg) => deg * (Math.PI / 180);
+    const R = 6371; // Radius of Earth in km
 
+    const dLat = toRad(coord2[0] - coord1[0]);
+    const dLon = toRad(coord2[1] - coord1[1]);
 
-// Parse DateTime in the data array to ensure they are valid Date objects
-data.forEach(d => {
-    if (!(d.DateTime instanceof Date)) {
-        d.DateTime = new Date(d.DateTime);
-    }
-});
+    const lat1 = toRad(coord1[0]);
+    const lat2 = toRad(coord2[0]);
 
-// Initialize selectedDate with today's date
-let selectedDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-// Add event listener to the dropdown
-document.querySelector("#date-selector").addEventListener("change", (event) => {
-    selectedDate = event.target.value; // Update selectedDate when dropdown changes
-    drawChart(selectedDate); // Redraw chart for the selected date
-    updateInfo(data, selectedDate); // Update tide and sun info
-});
+    return R * c; // Distance in km
+}
 
-// Add event listeners for the left and right buttons
-document.querySelector("#left-button").addEventListener("click", () => {
-    updateSelectedDate(-1); // Move to the previous date
-});
-
-document.querySelector("#right-button").addEventListener("click", () => {
-    updateSelectedDate(1); // Move to the next date
-});
-
-// Function to update selectedDate and sync dropdown
-function updateSelectedDate(offset) {
-    const dateSelector = document.querySelector("#date-selector");
-    const options = Array.from(dateSelector.options);
-    let currentIndex = options.findIndex(option => option.value === selectedDate);
-
-    if (currentIndex !== -1) {
-        const newIndex = currentIndex + offset;
-
-        if (newIndex >= 0 && newIndex < options.length) {
-            selectedDate = options[newIndex].value; // Update selectedDate
-            dateSelector.value = selectedDate; // Sync dropdown to selectedDate
-            drawChart(selectedDate); // Redraw chart for the updated date
-            updateInfo(data, selectedDate); // Update tide and sun info
+    
+        // Function to find the closest tide station
+        function findClosestTideStation(beachCoords) {
+            let closestStation = null;
+            let minDistance = Infinity;
+    
+            Object.entries(tideStations).forEach(([station, stationCoords]) => {
+                const distance = haversineDistance(beachCoords, stationCoords);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestStation = station;
+                }
+            });
+    
+            return closestStation;
         }
+    
+        // Global variable to store fetched tide data
+        let tideData = {};
+        let closestTideMarker = null;
+        document.addEventListener("DOMContentLoaded", function () {
+    let selectedDate = new Date().toISOString().split("T")[0]; // Default to today
+    let selectedButton = null;
+
+    // Fetch tide data on page load
+    fetch("https://gemcxasoc2.execute-api.eu-north-1.amazonaws.com/dev/getTideData")
+    .then(response => response.json())
+    .then(data => {
+        console.log("✅ Tide Data Fetched:", data);
+        tideData = data;
+        generateDateButtons();
+
+        // ✅ Ensure default beach is selected before drawing chart
+        const defaultBeach = beaches.find(beach => beach.name === "Sandown");
+        if (defaultBeach) {
+            selectMarker(defaultBeach, document.querySelector(".custom-marker"));
+        }
+
+        drawTideChart();
+    })
+    .catch(error => console.error("Error fetching tide data:", error));
+
+
+    function generateDateButtons() {
+    const today = new Date();
+    const dateSelector = document.getElementById("date-selector");
+    dateSelector.innerHTML = ""; // Clear previous buttons
+
+    for (let i = 0; i < 6; i++) { // ✅ Only generate 6 days instead of 7
+        const futureDate = new Date(today);
+        futureDate.setDate(today.getDate() + i);
+        const dateStr = futureDate.toISOString().split("T")[0];
+
+        const button = document.createElement("button");
+        
+        // ✅ Extract first letter of the day (e.g., "M" for Monday)
+        const dayOfWeek = futureDate.toLocaleString("en-US", { weekday: "short" })[0]; 
+        
+        // ✅ Set button text to the day letter above the date
+        button.innerHTML = `<span style="display:block; font-size: 14px;">${dayOfWeek}</span>${futureDate.getDate()}`;
+        button.dataset.date = dateStr;
+
+        button.addEventListener("click", () => {
+            window.selectedDate = dateStr;
+            console.log("📅 Selected date:", window.selectedDate);
+
+            // ✅ Remove 'selected' class from all buttons
+            document.querySelectorAll("#date-selector button").forEach(btn => {
+                btn.classList.remove("selected");
+            });
+
+            // ✅ Add 'selected' class to the clicked button
+            button.classList.add("selected");
+
+            updateTideDataForDate();
+        });
+
+        dateSelector.appendChild(button);
+    }
+
+    // ✅ Set the first button as the default selected one
+    const firstButton = dateSelector.querySelector("button");
+    if (firstButton) {
+        firstButton.classList.add("selected");
+        window.selectedDate = firstButton.dataset.date;
     }
 }
 
-// Initial rendering for today's date
-drawChart(selectedDate);
-updateInfo(data, selectedDate); // Call updateInfo when the page loads
+
+
+});
+
+
+    
+        // ✅ Update tide data display when a date is clicked
+        function updateTideDataForDate() {
+    console.log(`📅 Updating tide info for: ${window.selectedDate}`);
+
+    const container = document.getElementById("tide-box");
+    container.innerHTML = "";
+
+    if (!window.selectedBeach || !window.closestTideStation || !tideData[window.closestTideStation]) {
+        container.innerHTML = "<p>Unable to load tide data.</p>";
+        return;
+    }
+
+    const stationData = tideData[window.closestTideStation];
+    const now = new Date();
+
+    // Get upcoming tide events
+    const upcomingEvents = stationData
+        .map(event => ({ ...event, DateTime: new Date(event.DateTime) }))
+        .filter(event => event.DateTime > now)
+        .sort((a, b) => a.DateTime - b.DateTime);
+
+    const previousEvents = stationData
+        .map(event => ({ ...event, DateTime: new Date(event.DateTime) }))
+        .filter(event => event.DateTime <= now)
+        .sort((a, b) => b.DateTime - a.DateTime);
+
+    const nextLow = upcomingEvents.find(e => e.EventType === "LowWater");
+    const nextHigh = upcomingEvents.find(e => e.EventType === "HighWater");
+
+    const lastTide = previousEvents[0];
+    const tideIsRising = lastTide?.EventType === "LowWater";
+
+    const statusEl = document.createElement("div");
+    statusEl.className = "tide-status";
+    statusEl.innerHTML = `
+    ${tideIsRising ? getRisingArrowSVG('pulse') : getFallingArrowSVG('pulse')}
+    <span>${tideIsRising ? "Tide is rising" : "Tide is falling"}</span>
+`;
+
+    
+    container.appendChild(statusEl);
+
+    const tidesToShow = [nextLow, nextHigh]
+        .filter(Boolean)
+        .sort((a, b) => a.DateTime - b.DateTime)
+        .slice(0, 2);
+
+    tidesToShow.forEach((event, index) => {
+        const isLow = event.EventType === "LowWater";
+        const label = isLow ? "Low Water in" : "High Water in";
+        const arrow = isLow ? "⬇️" : "⬆️";
+
+        const diffMs = event.DateTime - now;
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffMinutes = Math.floor((diffMs / (1000 * 60)) % 60);
+        const timeStr = event.DateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const tideBox = document.querySelector('.info-item.tide');
+
+tideBox.classList.remove("rising", "falling", "filled");
+void tideBox.offsetWidth; // Force reflow for restart animation
+
+if (tideIsRising) {
+  tideBox.classList.add("rising", "filled");
+} else {
+  tideBox.classList.add("falling", "filled");
+}
+
+        const block = document.createElement("div");
+        block.classList.add("tide-block");
+        if (index === 0) block.classList.add("highlight");
+
+        block.innerHTML = `
+    <div class="tide-label">
+        ${label}: <span class="bold">${diffHours}h ${diffMinutes}m</span>
+        <time>(${timeStr})</time>
+    </div>
+`;
+
+
+        container.appendChild(block);
+    });
+}
+function getRisingArrowSVG(className = '') {
+    return `
+    <svg viewBox="0 0 24 24" class="tide-arrow ${className}">
+        <path d="M12 20V4M12 4L6 10M12 4l6 6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+}
+
+function getFallingArrowSVG(className = '') {
+    return `
+    <svg viewBox="0 0 24 24" class="tide-arrow ${className}">
+        <path d="M12 4v16M12 20l-6-6M12 20l6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+}
 
 
 
-        const parseDate = d3.isoParse;
-        data.forEach(d => d.DateTime = parseDate(d.DateTime));
+
+    
+        // ✅ UI for map selection
+        let selectedMarker = null;
+    
+        beaches.forEach(beach => {
+            const marker = L.divIcon({ className: 'custom-marker' });
+    
+            const markerInstance = L.marker(beach.coords, { icon: marker })
+                .addTo(map)
+                .on('click', () => {
+                    const markerElement = markerInstance._icon;
+                    selectMarker(beach, markerElement);
+                });
+    
+            if (beach.name === "Sandown") {
+                setTimeout(() => {
+                    const markerElement = markerInstance._icon;
+                    selectMarker(beach, markerElement);
+                }, 0);
+            }
+        });
+    
+        function selectMarker(beach, markerElement) {
+    if (selectedMarker) {
+        selectedMarker.classList.remove('selected-marker');
+    }
+
+    markerElement.classList.add('selected-marker');
+    selectedMarker = markerElement;
+
+    document.getElementById('selected-beach-name').textContent = beach.name;
+
+    // 🔥 Store closest station globally (instead of recalculating later)
+    window.selectedBeach = beach;
+    updateWeatherForBeach(beach);
+    window.closestTideStation = findClosestTideStation(beach.coords);
+    
+    console.log(`🌊 Selected Beach: ${beach.name}`);
+    console.log(`📍 Closest Tide Station: ${window.closestTideStation}`);
+
+    if (closestTideMarker) map.removeLayer(closestTideMarker);
+
+    const stationCoords = tideStations[window.closestTideStation];
+
+    closestTideMarker = L.marker(stationCoords, {
+        icon: L.divIcon({ className: 'tide-station-marker', html: '<div class="diamond-marker"></div>', iconSize: [12, 12], iconAnchor: [6, 6] })
+    }).addTo(map);
+
+    closestTideMarker.setZIndexOffset(-1000);
+
+    updateTideDataForDate();
+    drawTideChart();
+      // Update beach description + image
+  const descriptionBox = document.getElementById("beach-description-box");
+  const image = document.getElementById("beach-image");
+  const descText = document.getElementById("beach-description-text");
+
+  const beachData = beachDescriptions[beach.name];
+  if (beachData) {
+    image.src = beachData.image;
+    descText.textContent = beachData.text;
+  } else {
+    image.src = "";
+    descText.textContent = "No description available for this beach.";
+  }
+}
 
 
-        function generatePredictions(data, selectedDate) {
+
+  
+function generatePredictions(data, selectedDate) {
     const predictions = [];
-    const twelfths = [1, 2, 3, 3, 2, 1]; // Rule of twelfths increments
+    const twelfths = [1, 2, 3, 3, 2, 1]; // The six twelfths per tide cycle
 
-    for (let i = 0; i < data.length - 1; i++) {
-        const start = data[i];
-        const end = data[i + 1];
-        const interval = (end.DateTime - start.DateTime) / (6 * 60 * 60 * 1000); // Time interval for six steps
+    // ✅ Extend data: Include tide events from the previous and next day
+    const allData = [...data];
+
+    const prevDate = new Date(selectedDate);
+    prevDate.setDate(prevDate.getDate() - 1);
+    const nextDate = new Date(selectedDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    if (tideData[window.closestTideStation]) {
+        allData.push(
+            ...tideData[window.closestTideStation].map(event => ({
+                ...event,
+                DateTime: new Date(event.DateTime),
+            }))
+            .filter(event => 
+                event.DateTime.toISOString().startsWith(prevDate.toISOString().split("T")[0]) ||
+                event.DateTime.toISOString().startsWith(nextDate.toISOString().split("T")[0])
+            )
+        );
+    }
+
+    // ✅ Sort by DateTime
+    allData.sort((a, b) => a.DateTime - b.DateTime);
+
+    // ✅ Ensure at least some data exists for the selected date
+    if (allData.length === 0) {
+        console.warn("No tide data available.");
+        return predictions;
+    }
+
+    // ✅ Predict midnight height by interpolation if needed
+const startOfDay = new Date(`${selectedDate}T00:00:00`);
+if (allData[0].DateTime > startOfDay && allData.length >= 2) {
+    const next = allData[0];
+    const prev = allData.find(event => event.DateTime < next.DateTime);
+
+    if (prev) {
+        const timeDiff = next.DateTime - prev.DateTime;
+        const heightDiff = next.Height - prev.Height;
+        const ratio = (startOfDay - prev.DateTime) / timeDiff;
+
+        const interpolatedHeight = prev.Height + ratio * heightDiff;
+
+        predictions.push({
+            DateTime: startOfDay,
+            Height: interpolatedHeight
+        });
+    }
+}
+
+    // ✅ Generate interpolated tide heights using the Rule of Twelfths
+    for (let i = 0; i < allData.length - 1; i++) {
+        const start = allData[i];
+        const end = allData[i + 1];
+
+        if (!(start.DateTime instanceof Date)) start.DateTime = new Date(start.DateTime);
+        if (!(end.DateTime instanceof Date)) end.DateTime = new Date(end.DateTime);
+
+        const interval = (end.DateTime - start.DateTime) / 6; // Divide into 6 equal steps
         const totalChange = end.Height - start.Height;
 
-        predictions.push(start); // Add the starting point
+        predictions.push(start); // Keep the original tide event
 
         let currentTime = new Date(start.DateTime);
         twelfths.forEach(twelfth => {
             const increment = (twelfth / 12) * totalChange;
-            currentTime = new Date(currentTime.getTime() + interval * 60 * 60 * 1000);
+            currentTime = new Date(currentTime.getTime() + interval);
             predictions.push({
                 DateTime: currentTime,
                 Height: predictions[predictions.length - 1].Height + increment,
@@ -404,269 +1245,292 @@ updateInfo(data, selectedDate); // Call updateInfo when the page loads
         });
     }
 
-    predictions.push(data[data.length - 1]); // Add the last point
+    predictions.push(allData[allData.length - 1]); // Add the last tide event
 
-    // Filter predictions for the selected date
-  // Adjust start of day to include 2 hours from the previous day (23:00)
-const startOfDay = new Date(`${selectedDate}T00:00:00`);
-startOfDay.setHours(startOfDay.getHours() - 1); // Adjust to 23:00 of the previous day
-
-// Adjust end of day to include 2 hours into the next day (01:59)
-const endOfDay = new Date(`${selectedDate}T23:59:59`);
-endOfDay.setHours(endOfDay.getHours() + 2); // Extend to 01:59 of the next day
-
+    // ✅ Predict beyond last tide event if needed
+    const endOfDay = new Date(`${selectedDate}T23:59:59`);
+    if (allData[allData.length - 1].DateTime < endOfDay) {
+        const lastTide = allData[allData.length - 1]; // Last known tide
+        const estimatedHeight = lastTide.Height + 0.5; // Rough extrapolation
+        predictions.push({ DateTime: endOfDay, Height: estimatedHeight });
+    }
 
     return predictions.filter(d => d.DateTime >= startOfDay && d.DateTime <= endOfDay);
 }
-function updateInfo(data, selectedDate) {
-    // Filter the data for the selected day
-    const tidesForDate = data.filter(d =>
-        d.DateTime.toISOString().startsWith(selectedDate)
-    );
 
-    // Sort the tides chronologically
-    tidesForDate.sort((a, b) => a.DateTime - b.DateTime);
 
-    // Generate HTML for tide times and heights
-    const tideHtml = tidesForDate.map(tide => `
-        <div>
-            <strong>${tide.EventType === "HighWater" ? "High Tide" : "Low Tide"}</strong>: ${d3.timeFormat("%H:%M")(tide.DateTime)} (${tide.Height.toFixed(2)}m)
-        </div>
-    `).join("");
+function updateWeatherForBeach(beach) {
+    if (!beach || !beach.coords) return;
 
-    // Populate the Tide Info section
-    const tideInfoContainer = document.getElementById("high-tide-low-tide");
-    if (tideInfoContainer) {
-        tideInfoContainer.innerHTML = `<h3>Tide Times</h3>${tideHtml}`;
-    }
+    const lat = beach.coords[0];
+    const lon = beach.coords[1];
 
-    // Define sunrise and sunset times for the selected day
-    const sunrise = new Date(`${selectedDate}T07:46:00`);
-    const sunset = new Date(`${selectedDate}T16:04:00`);
+    const weatherCodes = {
+        0: ["Clear", "☀️"],
+        1: ["Mainly clear", "🌤️"],
+        2: ["Partly cloudy", "🌥️"],
+        3: ["Overcast", "☁️"],
+        45: ["Fog", "🌫️"],
+        51: ["Light drizzle", "🌦️"],
+        61: ["Rain", "🌧️"],
+        71: ["Snow", "🌨️"],
+        80: ["Showers", "🌦️"],
+        95: ["Thunderstorm", "⛈️"]
+    };
 
-    // Generate HTML for sunrise and sunset times
-    const sunHtml = `
-        <div class="sunrise">
-            <div class="sunrise-text">Sunrise</div>
-            <div class="time">${d3.timeFormat("%H:%M")(sunrise)}</div>
-        </div>
-        <div class="sunset">
-            <div class="sunset-text">Sunset</div>
-            <div class="time">${d3.timeFormat("%H:%M")(sunset)}</div>
-        </div>
-    `;
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode,wind_speed_10m,precipitation_probability,relative_humidity_2m,uv_index&current_weather=true`)
+        .then(res => res.json())
+        .then(data => {
+            const current = data.current_weather;
+            const hourly = data.hourly;
 
-    // Populate the Sun Info section
-    const sunInfoContainer = document.getElementById("sunrise-sunset-info");
-    if (sunInfoContainer) {
-        sunInfoContainer.innerHTML = `${sunHtml}`;
-    }
+            const now = new Date(current.time);
+            let closestIndex = 0;
+            let minDiff = Infinity;
+
+            hourly.time.forEach((t, i) => {
+                const diff = Math.abs(new Date(t) - now);
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    closestIndex = i;
+                }
+            });
+
+            const temp = current.temperature ?? "--";
+            const wind = current.windspeed ?? "--";
+            const rain = hourly.precipitation_probability?.[closestIndex] ?? "--";
+            const humidity = hourly.relative_humidity_2m?.[closestIndex] ?? "--";
+            const uvIndex = hourly.uv_index?.[closestIndex] ?? "--";
+            const code = current.weathercode;
+            const [conditionText, icon] = weatherCodes[code] || ["Unknown", "❓"];
+
+            // 🌤️ Update weather
+            document.getElementById("weather-icon").textContent = icon;
+            document.getElementById("weather-temp-big").textContent = temp;
+            document.getElementById("weather-condition-text").textContent = conditionText;
+            document.getElementById("weather-rain").textContent = `Precipitation: ${rain}%`;
+            document.getElementById("weather-humidity").textContent = `Humidity: ${humidity}%`;
+            document.getElementById("weather-wind").textContent = `Wind: ${wind} km/h`;
+
+            // 🌞 Update UV Box with dot indicator style
+const uvBox = document.getElementById("uv-box");
+const uvValueEl = document.getElementById("uv-index-value");
+const uvLevelEl = document.getElementById("uv-level");
+const uvIndicator = document.getElementById("uv-indicator");
+
+if (uvBox && uvValueEl && uvLevelEl && uvIndicator) {
+    const uv = parseFloat(uvIndex);
+    uvValueEl.textContent = uv.toFixed(1);
+
+    let level = "Low";
+    if (uv >= 3 && uv < 6) level = "Moderate";
+    else if (uv >= 6 && uv < 8) level = "High";
+    else if (uv >= 8) level = "Very High";
+
+    uvLevelEl.textContent = level;
+
+    const uvPercent = Math.min(uv / 11, 1) * 100;
+    document.getElementById("uv-indicator-wrapper").style.left = `${uvPercent}%`;
+
+}
+
+        })
+        .catch(err => {
+            console.error("Weather fetch failed:", err);
+        });
 }
 
 
 
-        function drawChart() {
-    const predictions = generatePredictions(data, selectedDate);
-    const sunrise = new Date(selectedDate + "T07:46:00");
-const sunset = new Date(selectedDate + "T16:04:00");
 
-    const now = new Date(); // Current time
 
-    const container = d3.select("#chart-container");
-    const svg = container.select("svg");
+function drawTideChart() {
+    if (!window.selectedDate || !window.closestTideStation) {
+        console.warn("🚨 No selected date or tide station, skipping chart update.");
+        return;
+    }
 
-    // Clear the SVG before redrawing
-    svg.selectAll("*").remove();
+    console.log(`📊 Drawing tide chart for ${window.selectedDate}, Station: ${window.closestTideStation}`);
 
-    const margin = { top: 20, right: 10, bottom: 50, left: 30 };
-    const width = container.node().offsetWidth - margin.left - margin.right;
-    const height = Math.min(window.innerHeight * 0.2, 200); // Scale to 50% of viewport height, max 400px
+    const stationData = tideData[window.closestTideStation] || [];
+    const filteredData = stationData
+        .map(event => ({
+            ...event,
+            DateTime: new Date(event.DateTime),
+        }))
+        .filter(event => event.DateTime.toISOString().startsWith(window.selectedDate));
 
-    const g = svg
-        .attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+    if (filteredData.length === 0) {
+        console.warn(`❌ No tide data found for ${window.closestTideStation} on ${window.selectedDate}`);
+        return;
+    }
+
+    const predictions = generatePredictions(filteredData, window.selectedDate);
+
+    const startTime = new Date(`${window.selectedDate}T03:00:00`);
+    const endTime = new Date(`${window.selectedDate}T23:59:59`);
+
+    let visiblePredictions = predictions.filter(d => d.DateTime >= startTime && d.DateTime <= endTime);
+
+    const beforeStart = [...predictions].reverse().find(p => p.DateTime < startTime);
+    const afterStart = predictions.find(p => p.DateTime > startTime);
+
+    if (beforeStart && afterStart) {
+        const totalTime = afterStart.DateTime - beforeStart.DateTime;
+        const ratio = (startTime - beforeStart.DateTime) / totalTime;
+        const interpolatedHeight = beforeStart.Height + ratio * (afterStart.Height - beforeStart.Height);
+        visiblePredictions.unshift({ DateTime: startTime, Height: interpolatedHeight });
+    }
+
+    const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+    const width = document.getElementById("tide-chart-container").offsetWidth - margin.left - margin.right;
+    const height = 250;
+
+    const x = d3.scaleTime().domain([startTime, endTime]).range([0, width]);
+    const y = d3.scaleLinear().domain([0, 4.5]).range([height, 0]);
+
+    d3.select("#tide-chart-container").html("");
+
+    const svg = d3.select("#tide-chart-container").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
-
-    const tooltip = d3.select(".tooltip");
-
-    const x = d3.scaleTime()
-    .domain([
-        new Date(selectedDate + "T00:00:00"), 
-        new Date(new Date(selectedDate).setDate(new Date(selectedDate).getDate() + 1))
-    ])
-    .range([0, width]);
-
-
-    const y = d3.scaleLinear()
-        .domain([1.0, d3.max(predictions, d => d.Height) + 1]) // Use the exact Height range
-        .range([height, 0]);
-
-
-         // Add clipping path
-    svg.append("defs")
-        .append("clipPath")
-        .attr("id", "clip")
-        .append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", width)
-        .attr("height", height);
-
-    // Add x-axis
-    g.append("g")
-        .attr("transform", `translate(0,${height})`)
-        .attr("class", "axis")
-        .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")))
-        .selectAll("text")
-        .style("text-anchor", "end")
-        .attr("transform", "rotate(-45)");
-
-    // Add y-axis
-    g.append("g")
-    .attr("class", "axis")
-    .call(
-        d3.axisLeft(y)
-            .ticks(Math.ceil(d3.max(predictions, d => d.Height))) // Control number of ticks
-            .tickFormat(d3.format(".0f")) // Force integers
-    );
 
     const line = d3.line()
         .x(d => x(d.DateTime))
         .y(d => y(d.Height))
-        .curve(d3.curveCatmullRom);
+        .curve(d3.curveCatmullRom.alpha(0.1));
 
-    // Add the trend line
-    g.append("path")
-        .datum(predictions)
+    svg.append("path")
+        .datum(visiblePredictions)
         .attr("fill", "none")
-        .attr("stroke", "#1F305E")
-        .attr("stroke-width", 3)
-        .attr("d", line)
-        .attr("clip-path", "url(#clip)"); // Apply the clipping path;
+        .attr("stroke", "lightblue")
+        .attr("stroke-width", 2)
+        .attr("d", line);
 
-    g.selectAll("circle")
-        .data(predictions)
-        .enter()
-        .append("circle")
-        .attr("class", "dot")
-        .attr("cx", d => x(d.DateTime))
-        .attr("cy", d => y(d.Height))
+    svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat("%H:%M")));
+
+    svg.append("g").call(d3.axisLeft(y));
+
+   // 🌄 Soft night shading before sunrise and after sunset
+if (window.sunriseTime && window.sunsetTime) {
+    const sunrise = new Date(window.sunriseTime);
+    const sunset = new Date(window.sunsetTime);
+    const sunriseX = x(sunrise);
+    const sunsetX = x(sunset);
+
+    // 🌌 Before sunrise
+    if (sunriseX > 0) {
+        svg.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", Math.max(0, sunriseX))
+            .attr("height", height)
+            .attr("fill", "rgba(20, 30, 60, 0.15)");
+    }
+
+    // 🌃 After sunset
+    if (sunsetX < width) {
+        svg.append("rect")
+            .attr("x", sunsetX)
+            .attr("y", 0)
+            .attr("width", Math.max(0, width - sunsetX))
+            .attr("height", height)
+            .attr("fill", "rgba(20, 30, 60, 0.15)");
+    }
+
+    // ☀️ Optional sun emoji markers (keep if you like them!)
+    svg.append("text")
+        .attr("x", sunriseX)
+        .attr("y", -5)
+        .attr("fill", "#facc15")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .text("☀️");
+
+    svg.append("text")
+        .attr("x", sunsetX)
+        .attr("y", -5)
+        .attr("fill", "#f97316")
+        .attr("text-anchor", "middle")
+        .attr("font-size", "12px")
+        .text("🌇");
+}
+
+
+    const tooltip = d3.select("#tide-chart-container").append("div")
+        .attr("class", "tooltip")
+        .style("position", "absolute")
+        .style("background", "rgba(255, 255, 255, 0.9)")
+        .style("padding", "8px")
+        .style("border-radius", "5px")
+        .style("box-shadow", "0px 0px 10px rgba(0,0,0,0.3)")
+        .style("display", "none")
+        .style("pointer-events", "none");
+
+    const hoverCircle = svg.append("circle")
         .attr("r", 4)
-        .attr("fill", "#1F305E")
-        .attr("clip-path", "url(#clip)") // Apply the clipping path;
-        .on("mouseover", (event, d) => {
-            tooltip.style("display", "block")
-                .html(`Time: ${d3.timeFormat("%H:%M:%S")(d.DateTime)}<br>Height: ${d.Height.toFixed(2)}m`);
+        .attr("fill", "white")
+        .style("filter", "drop-shadow(0px 0px 6px white)")
+        .style("display", "none");
+
+    svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "transparent")
+        .on("mousemove", function (event) {
+            const [mouseX] = d3.pointer(event);
+            const hoverTime = x.invert(mouseX);
+
+            const closestPoint = visiblePredictions.reduce((prev, curr) =>
+                Math.abs(curr.DateTime - hoverTime) < Math.abs(prev.DateTime - hoverTime) ? curr : prev
+            );
+
+            hoverCircle
+                .attr("cx", x(closestPoint.DateTime))
+                .attr("cy", y(closestPoint.Height))
+                .style("display", "block");
+
+            tooltip
+                .html(`<strong>${d3.timeFormat("%H:%M")(closestPoint.DateTime)}</strong><br>Height: ${closestPoint.Height.toFixed(2)}m`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 30) + "px")
+                .style("display", "block");
         })
-        .on("mousemove", event => {
-            tooltip.style("left", `${event.pageX + 10}px`)
-                .style("top", `${event.pageY - 20}px`);
-        })
-        .on("mouseout", () => {
+        .on("mouseout", function () {
+            hoverCircle.style("display", "none");
             tooltip.style("display", "none");
         });
-
-    // Sunrise and sunset lines
-    g.append("line")
-        .attr("x1", x(sunrise))
-        .attr("x2", x(sunrise))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "orange")
-        .attr("stroke-width", 2)
-        .attr("stroke-dasharray", "4 4");
-
-    g.append("line")
-        .attr("x1", x(sunset))
-        .attr("x2", x(sunset))
-        .attr("y1", 0)
-        .attr("y2", height)
-        .attr("stroke", "red")
-        .attr("stroke-width", 2)
-        .attr("stroke-dasharray", "4 4");
-
-        // Current time line
-    if (now >= x.domain()[0] && now <= x.domain()[1]) {
-        g.append("line")
-            .attr("x1", x(now))
-            .attr("x2", x(now))
-            .attr("y1", 0)
-            .attr("y2", height)
-            .attr("stroke", "green")
-            .attr("stroke-width", 2)
-            .attr("stroke-dasharray", "3 3");
-
-        // Add time label at the bottom axis
-        g.append("text")
-            .attr("x", x(now))
-            .attr("y", height + 20) // Position below the x-axis
-            .attr("fill", "green")
-            .attr("font-size", "12px")
-            .style("text-anchor", "middle")
-            .text(d3.timeFormat("%H:%M")(now));
-        }
-    // Add subtle shading
-    g.insert("rect", ":first-child")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", x(sunrise))
-        .attr("height", height)
-        .attr("fill", "rgba(0, 0, 0, 0.2)");
-
-    g.insert("rect", ":first-child")
-        .attr("x", x(sunset))
-        .attr("y", 0)
-        .attr("width", width - x(sunset))
-        .attr("height", height)
-        .attr("fill", "rgba(0, 0, 0, 0.2)");
-
-    // Add sunrise icon
-// g.append("g")
-//     .html(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-//             <circle cx="50" cy="50" r="20" fill="orange" />
-//             <line x1="50" y1="10" x2="50" y2="0" stroke="orange" stroke-width="2" />
-//             <line x1="50" y1="90" x2="50" y2="80" stroke="orange" stroke-width="2" />
-//             <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-//             <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-//             <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-//             <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2            <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-//             <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-//             <rect x="0" y="70" width="100" height="10" fill="#87CEEB" />
-//         </svg>
-//     `)
-//     .attr("transform", `translate(${x(sunrise) - 12}, ${height + 10})`);
-
-// // Add sunset icon
-// g.append("g")
-//     .html(`
-//         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 100 100">
-//             <circle cx="50" cy="50" r="20" fill="orange" />
-//             <line x1="50" y1="90" x2="50" y2="100" stroke="orange" stroke-width="2" />
-//             <line x1="50" y1="10" x2="50" y2="20" stroke="orange" stroke-width="2" />
-//             <line x1="10" y1="50" x2="0" y2="50" stroke="orange" stroke-width="2" />
-//             <line x1="90" y1="50" x2="80" y2="50" stroke="orange" stroke-width="2" />
-//             <line x1="25" y1="75" x2="15" y2="85" stroke="orange" stroke-width="2" />
-//             <line x1="75" y1="75" x2="85" y2="85" stroke="orange" stroke-width="2" />
-//             <line x1="25" y1="25" x2="15" y2="15" stroke="orange" stroke-width="2" />
-//             <line x1="75" y1="25" x2="85" y2="15" stroke="orange" stroke-width="2" />
-//             <rect x="0" y="30" width="100" height="10" fill="#87CEEB" />
-//         </svg>
-//     `)
-//     .attr("transform", `translate(${x(sunset) - 12}, ${height + 10})`);
-
-
-
 }
 
 
 
 
-        drawChart();
 
-        // Redraw chart on window resize
-        window.addEventListener("resize", drawChart);
 
-   
+
+// ✅ Redraw on window resize
+window.addEventListener("resize", drawTideChart);
+
+
+
+
+// Hook into date and beach selection updates
+document.getElementById("date-selector").addEventListener("click", () => {
+    drawTideChart();
+});
+
+// Redraw on window resize
+window.addEventListener("resize", drawTideChart);
+
+
+
+       
+
     </script>
-</body>
-</html>
+    
+
+    
