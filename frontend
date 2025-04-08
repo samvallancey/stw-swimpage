@@ -387,7 +387,12 @@ svg {
   width: 100%;
   height: 0%;
   z-index: 0;
-  background: linear-gradient(to top, rgba(125, 211, 252, 0.25), rgba(125, 211, 252, 0.15));
+  background: linear-gradient(
+  to top, 
+  rgba(30, 58, 138, 0.25), 
+  rgba(30, 58, 138, 0.15)
+);
+
 }
 
 .info-item.tide.rising::before {
@@ -422,7 +427,7 @@ svg {
   background-color: #1a1a1a;
   z-index: 2;
   position: relative;
-  box-shadow: 0 0 10px rgba(135, 206, 250, 0.6);
+  box-shadow: 0 0 10px  rgba(30, 58, 138, 0.6), 
 }
 
 #beach-description {
@@ -516,9 +521,12 @@ svg {
 }
 
 #beach-image {
-  width: 100px;
+  width: 50%;
+  max-width: 300px; /* optional: cap width if screen is large */
   border-radius: 8px;
   object-fit: cover;
+  flex-shrink: 0;
+  height: 160px;
 }
 
 #beach-description-text {
@@ -665,6 +673,59 @@ svg {
   }
 }
 
+#wave-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#wave-height {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 6px 0;
+}
+
+#wave-description {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.wave-box {
+  position: relative;
+  overflow: hidden;
+}
+
+.wave-fill-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: #1e3a8a;
+  opacity: 0.25;
+  z-index: 1;
+  transition: height 1s ease-in-out;
+}
+.wave-fill-bg::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 0;
+  width: 200%;
+  height: 20px;
+  background: var(--wave-svg) repeat-x;
+  background-size: 60px 20px;
+  animation: waveMove 4s linear infinite;
+  z-index: 2;
+}
+
+@keyframes waveMove {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-60px); }
+}
+
+
 
 
 
@@ -703,21 +764,17 @@ svg {
                 <div class="info-row">
                   <div class="info-item tide" id="tide-box"></div>
               
-                  <div id="weather-box" class="info-item">
-                    <div class="weather-inner">
-                      <div class="weather-left">
-                        <div id="weather-icon">☁️</div>
-                        <div id="weather-temp-big">--</div>
-                        <div class="unit">°C</div>
-                      </div>
-                      <div class="weather-right">
-                        <p id="weather-condition-text">Condition: --</p>
-                        <p id="weather-rain">Precipitation: --%</p>
-                        <p id="weather-humidity">Humidity: --%</p>
-                        <p id="weather-wind">Wind: -- km/h</p>
-                      </div>
+                  <div id="wave-box" class="info-item wave-box">
+                    <div class="wave-fill-bg" id="wave-fill"></div>
+                    <div style="position: relative; z-index: 2;">
+                      <h3 style="margin-bottom: 6px;">Wave Height</h3>
+                      <div id="wave-height" style="font-size: 24px; font-weight: bold;">-- m</div>
+                      <div id="wave-description" style="color: #ccc; font-size: 14px;">Loading...</div>
                     </div>
                   </div>
+                  
+                  
+                  
                   
                   
                 </div>
@@ -738,12 +795,24 @@ svg {
                           </div>
                         </div>
                       </div>
-                      
+                      <div id="weather-box" class="info-item">
+                        <div class="weather-inner">
+                          <div class="weather-left">
+                            <div id="weather-icon">☁️</div>
+                            <div id="weather-temp-big">--</div>
+                            <div class="unit">°C</div>
+                          </div>
+                          <div class="weather-right">
+                            <p id="weather-condition-text">Condition: --</p>
+                            <p id="weather-rain">Precipitation: --%</p>
+                            <p id="weather-humidity">Humidity: --%</p>
+                            <p id="weather-wind">Wind: -- km/h</p>
+                          </div>
+                        </div>
+                      </div>
               
-                  <div class="info-item">
-                    <h3>More Info</h3>
-                    <p>Placeholder for future data.</p>
-                  </div>
+                     
+                      
                 </div>
               </div>
               
@@ -765,11 +834,14 @@ svg {
 <script src="https://d3js.org/d3.v6.min.js"></script>
 
     <script>
-        // ✅ Ensure selectedDate is set when the page loads
+       // ✅ Ensure selectedDate is set when the page loads
 if (!window.selectedDate) {
-    window.selectedDate = new Date().toISOString().split("T")[0]; // Default to today's date
-    console.log("✅ Setting default selected date:", window.selectedDate);
+  window.selectedDate = new Date().toISOString().split("T")[0];
+  console.log("✅ Setting default selected date:", window.selectedDate);
 }
+
+// Toggle description panel
+
 document.getElementById("toggle-description").addEventListener("click", () => {
   const desc = document.getElementById("beach-description");
   const toggle = document.getElementById("toggle-description");
@@ -778,6 +850,7 @@ document.getElementById("toggle-description").addEventListener("click", () => {
   desc.classList.toggle("collapsed", isExpanded);
   toggle.setAttribute("aria-expanded", !isExpanded);
 });
+
 document.getElementById("favourite-toggle").addEventListener("click", () => {
   const btn = document.getElementById("favourite-toggle");
   const isFavourited = btn.classList.toggle("favourited");
@@ -787,8 +860,11 @@ document.getElementById("favourite-toggle").addEventListener("click", () => {
 });
 
 // ✅ Call updateTideDataForDate() on page load
+
 document.addEventListener("DOMContentLoaded", function () {
-    updateTideDataForDate();
+  updateTideDataForDate();
+  fetchSurflineData();
+
 });
         // Initialize the map
         const map = L.map('map', {
@@ -913,6 +989,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         drawTideChart();
+        
     })
     .catch(error => console.error("Error fetching tide data:", error));
 
@@ -1120,44 +1197,89 @@ function getFallingArrowSVG(className = '') {
 
     updateTideDataForDate();
     drawTideChart();
+    updateBeachDescriptionBox();
+    updateWaveHeightForBeach(beach);
       // Update beach description + imageconst descriptionBox = document.getElementById("beach-description-box");
-const image = document.getElementById("beach-image");
-const descText = document.getElementById("beach-description-text");
 
-const beachData = beachDescriptions[beach.name];
-if (beachData) {
-  image.src = beachData.image;
-} else {
-  image.src = "";
+
 }
 
-// Get tide height
-const now = new Date();
-const predictions = generatePredictions(stationData, window.selectedDate);
-const closestPrediction = predictions.reduce((a, b) =>
-  Math.abs(a.DateTime - now) < Math.abs(b.DateTime - now) ? a : b
-);
-const currentTideHeight = closestPrediction?.Height?.toFixed(2) ?? "--";
+function updateWaveHeightForBeach(beach) {
+  if (!beach || !beach.coords) return;
 
-// Get wind description
-const windSpeed = window.currentWindSpeed || 0;
-let windDescription = "calm";
-if (windSpeed > 15) windDescription = "very windy";
-else if (windSpeed > 8) windDescription = "a bit windy";
+  const lat = beach.coords[0];
+  const lon = beach.coords[1];
 
-// Basic swim condition (later we’ll customize per beach)
-let swimCondition = "decent for swimming";
-if (windSpeed > 15) swimCondition = "probably rough for swimming";
-else if (windSpeed < 5 && currentTideHeight > 1) swimCondition = "ideal for a swim";
+  fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&hourly=wave_height&timezone=auto`)
+    .then(res => res.json())
+    .then(data => {
+      const now = new Date();
+      let closestIndex = 0;
+      let minDiff = Infinity;
 
-// ✅ Combine description + dynamic analysis
-descText.innerHTML = `
-  ${beachData?.text || "No description available for this beach."}<br><br>
-  The current tide height is <strong>${currentTideHeight}m</strong>, and it's <strong>${windDescription}</strong>, 
-  so conditions for swimming are <strong>${swimCondition}</strong>.<br><br>
-  <em>Note: swim suitability will later be tailored to each beach.</em>
-`;
+      data.hourly.time.forEach((t, i) => {
+        const diff = Math.abs(new Date(t) - now);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestIndex = i;
+        }
+      });
 
+      const waveHeight = data.hourly.wave_height?.[closestIndex] ?? "--";
+      updateWaveSVG(waveHeight);
+
+      // 🧠 Store globally
+      window.currentWaveHeight = parseFloat(waveHeight) || 0;
+      
+  updateBeachDescriptionBox(); // ← ✅ THIS IS YOUR FIX
+
+
+      // 📊 Update text
+      document.getElementById("wave-height").textContent = `${waveHeight.toFixed(1)} m`;
+      const fillPercent = Math.min(waveHeight / 2.5, 1) * 100; // Scale height up to ~2.5m
+      document.getElementById("wave-fill").style.height = `${fillPercent}%`;
+
+      // 🌊 Description
+      let desc = "Calm seas";
+      if (waveHeight > 1.2) desc = "Rough waves 🌊";
+      else if (waveHeight > 0.6) desc = "Moderate surf";
+      else if (waveHeight > 0.3) desc = "Gentle waves";
+      else desc = "Calm";
+
+      document.getElementById("wave-description").textContent = desc;
+
+      // 🚰 Animate water level in tank
+      const fill = document.getElementById("wave-fill");
+      const percent = Math.min(waveHeight / 2, 1) * 100; // cap at 2m
+      fill.style.height = `${percent}%`;
+
+    })
+    .catch(err => {
+      console.error("Wave height fetch failed:", err);
+      document.getElementById("wave-description").textContent = "Unavailable";
+    });
+}
+
+function updateWaveSVG(waveHeight) {
+  const peak = Math.min(waveHeight * 20, 20); // make this as dramatic as you like
+  const midY = 10;
+  const viewBoxHeight = 40;
+  const fillColor = '#1e3a8a';
+
+  // Construct raw SVG string
+  const svg = `
+    <svg viewBox="0 0 120 ${viewBoxHeight}" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 ${midY} Q 30 ${midY - peak}, 60 ${midY} T 120 ${midY} V${viewBoxHeight} H0 Z"
+        fill="${fillColor}" fill-opacity="1"/>
+    </svg>`;
+
+  // Encode and apply as background
+  const encodedSVG = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const waveFill = document.getElementById("wave-fill");
+  if (waveFill) {
+    waveFill.style.setProperty('--wave-svg', `url("${encodedSVG}")`);
+    
+  }
 }
 
 
@@ -1337,7 +1459,63 @@ if (uvBox && uvValueEl && uvLevelEl && uvIndicator) {
         });
 }
 
+function updateBeachDescriptionBox() {
+  const beach = window.selectedBeach;
+  const stationData = tideData[window.closestTideStation] || [];
 
+  const image = document.getElementById("beach-image");
+  const descText = document.getElementById("beach-description-text");
+
+  if (!descText || !beach) return;
+
+  const beachData = beachDescriptions[beach.name];
+
+  // ✅ Set image
+  if (beachData?.image) {
+    image.src = beachData.image;
+  } else {
+    image.src = "";
+  }
+
+  // ⛱️ Generate description summary
+  const now = new Date();
+  const predictions = generatePredictions(stationData, window.selectedDate);
+  const closestPrediction = predictions.reduce((a, b) =>
+    Math.abs(a.DateTime - now) < Math.abs(b.DateTime - now) ? a : b
+  );
+
+  const currentTideHeight = closestPrediction?.Height?.toFixed(2) ?? "--";
+const windSpeed = window.currentWindSpeed || 0;
+const waveHeight = window.currentWaveHeight || 0;
+
+// 🌬️ Wind description
+let windDescription = "calm";
+if (windSpeed > 15) windDescription = "very windy";
+else if (windSpeed > 8) windDescription = "a bit windy";
+
+// 🌊 Wave description
+let waveDescription = "calm";
+if (waveHeight > 1.2) waveDescription = "rough";
+else if (waveHeight > 0.6) waveDescription = "moderate surf";
+else if (waveHeight > 0.3) waveDescription = "gentle waves";
+
+// 🏊‍♂️ Swim suitability logic
+let swimCondition = "decent for swimming";
+if (windSpeed > 15 || waveHeight > 1.2) {
+  swimCondition = "probably rough for swimming";
+} else if (windSpeed < 5 && currentTideHeight > 1 && waveHeight < 0.3) {
+  swimCondition = "ideal for a swim";
+}
+
+const extraNote = `<br><br><em>Note: Basic analysis! Real data but algorithm needs work</em>`;
+const desc = beachData?.text ?? "No description available for this beach.";
+
+descText.innerHTML = `
+  ${desc}<br><br>
+  The current tide height is <strong>${currentTideHeight}m</strong>, the waves are <strong>${waveDescription}</strong>, and it's <strong>${windDescription}</strong>,
+  so conditions are <strong>${swimCondition}</strong>.${extraNote}
+`;
+}
 
 
 
@@ -1501,6 +1679,33 @@ if (window.sunriseTime && window.sunsetTime) {
             hoverCircle.style("display", "none");
             tooltip.style("display", "none");
         });
+}
+
+async function fetchSurflineData(spotId = "5842041f4e65fad6a770882b") {
+  const surflineUrl = `https://api.surfline.com/v1/forecasts/surf?spot_id=${spotId}&days=1&interval_hours=1&access_token=surfline`;
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(surflineUrl)}`;
+
+  try {
+    const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error(`Proxy failed: ${response.status}`);
+
+    const proxyData = await response.json();
+
+    // AllOrigins wraps the raw response in a `contents` field
+    const surflineData = JSON.parse(proxyData.contents);
+
+    console.log("Surfline data via AllOrigins:", surflineData);
+
+    // Return a simplified object
+    return {
+      timestamps: surflineData.data.timestamp,
+      minHeights: surflineData.data.surf.min,
+      maxHeights: surflineData.data.surf.max,
+    };
+  } catch (err) {
+    console.error("Failed to fetch Surfline data via AllOrigins:", err.message);
+    return null;
+  }
 }
 
 
