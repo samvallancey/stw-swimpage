@@ -484,6 +484,7 @@ svg {
 }
 
 
+
 #chart-section {
   margin-top: 20px;
   padding: 10px;
@@ -536,10 +537,29 @@ svg {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   transition: max-height 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
-  max-height: 300px;
+  
   opacity: 1;
 }
+@media (max-width: 768px) {
+  .beach-description {
+    flex-direction: column!important;   /* stack instead of row */
+    align-items: center;      /* center the media */
+    text-align: center;       /* optional: center text too */
+  }
 
+  .beach-media {
+    width: 100%;              /* fill width on mobile */
+    max-width: 500px;         /* optional: cap size */
+    aspect-ratio: 16 / 9;     /* keep nice video frame */
+    height: auto;
+  }
+
+  #beach-description-text {
+    width: 100%;
+    margin-top: 10px;
+    text-align: left;         /* keep left aligned if you prefer */
+  }
+}
 .beach-description.collapsed {
   max-height: 0;
   opacity: 0;
