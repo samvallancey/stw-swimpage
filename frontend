@@ -441,12 +441,40 @@ svg {
   box-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
-#beach-image {
-  width: 120px;
-  height: auto;
+.beach-media {
+  width: 50%;
+  max-width: 300px;
+  aspect-ratio: 16 / 9; height: auto;         /* keeps same vertical feel as the old image */
   border-radius: 8px;
-  object-fit: cover;
-  flex-shrink: 0; /* 👈 Prevent it from shrinking */
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #0f0f0f;     /* fallback bg */
+  display: block;
+}
+
+.beach-media { position: relative; }
+.beach-media > * {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  opacity: 0; transition: opacity .5s ease;
+  object-fit: cover; border: 0;
+}
+.beach-media > *.show { opacity: 1; }
+
+
+/* Anything we render in the slot fills it */
+.beach-media > * {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;        /* images look right */
+  border: 0;
+}
+
+/* iframes (YouTube, etc.) maintain cover-like fit */
+.beach-media iframe {
+  width: 100%;
+  height: 100%;
 }
 
 #beach-description-text {
@@ -754,7 +782,7 @@ svg {
               </div>
               
               <div id="beach-description" class="beach-description expanded">
-                <img id="beach-image" src="your-image.jpg" alt="Beach photo" />
+                <div id="beach-media" class="beach-media"></div>
                 <div id="beach-description-text">Loading...</div>
               </div>
               
@@ -914,15 +942,20 @@ document.addEventListener("DOMContentLoaded", function () {
             "Foreland": [50.685, -1.085]
         };
         
-        const beachDescriptions = {
-            "Sandown": {
+        window.beachDescriptions = {
+  "Sandown": {
+    // Either keep the image as fallback, or remove if always video:
     image: "https://lh5.googleusercontent.com/p/AF1QipNTDVuQN1X-pRhtDOvkzgH88J6pzXJuqDTnaVEv=w408-h544-k-no",
+    // ⬇️ embed URL from your video file (e.g., YouTube, Vimeo) or local MP4
+    // For YouTube, use the /embed/ form:
+    video: "https://www.youtube.com/embed/zITv7NFN0HI?si=xfSA1IfC7Ofm0WbJ&autoplay=1&mute=1&rel=1&modestbranding=1&controls=0&showinfo=0",
     text: "A long sandy beach popular for swimming and family fun, backed by a traditional promenade."
-        },
-        "Shanklin": {
+  },
+  "Shanklin": {
     image: "images/shanklin.jpg",
     text: "Charming seafront with golden sands, a Victorian esplanade, and dramatic cliffs."
   },
+
   // Add more entries...
 };
         // Function to calculate Haversine distance between two points
@@ -1463,19 +1496,122 @@ function updateBeachDescriptionBox() {
   const beach = window.selectedBeach;
   const stationData = tideData[window.closestTideStation] || [];
 
-  const image = document.getElementById("beach-image");
+  const mediaSlot = document.getElementById("beach-media");
   const descText = document.getElementById("beach-description-text");
+  if (!mediaSlot || !descText || !beach) return;
 
-  if (!descText || !beach) return;
+  const beachData = (window.beachDescriptions || {})[beach.name] || {};
+  mediaSlot.innerHTML = ""; // clear previous media
 
-  const beachData = beachDescriptions[beach.name];
-
-  // ✅ Set image
-  if (beachData?.image) {
-    image.src = beachData.image;
-  } else {
-    image.src = "";
+  // --- Decide what to render in the slot ---
+  // --- Decide what to render in the slot (CROSSFADE) ---
+if (beachData.video) {
+  // Clear any previous delayed swap for this slot
+  if (mediaSlot._swapTimeout) {
+    clearTimeout(mediaSlot._swapTimeout);
+    mediaSlot._swapTimeout = null;
   }
+
+  // 1) Add placeholder image (if available) and show it
+  mediaSlot.innerHTML = "";
+  let imgEl = null;
+  if (beachData.image) {
+    imgEl = document.createElement("img");
+    imgEl.src = beachData.image;
+    imgEl.alt = beach.name + " photo";
+    mediaSlot.appendChild(imgEl);
+    // force layout before class add so transition runs
+    requestAnimationFrame(() => imgEl.classList.add("show"));
+  } else {
+    // No image? Start with a neutral frame
+    const placeholder = document.createElement("div");
+    placeholder.style.background = "#0f0f0f";
+    mediaSlot.appendChild(placeholder);
+    requestAnimationFrame(() => placeholder.classList.add("show"));
+  }
+
+  // 2) Build the video element but keep it hidden until we fade
+  const isEmbeddable = /youtube\.com|youtu\.be|vimeo\.com|player\.vimeo\.com/i.test(beachData.video);
+  let videoEl;
+
+  if (isEmbeddable) {
+    const url = beachData.video +
+      (beachData.video.includes("?") ? "&" : "?") +
+      "rel=0&modestbranding=1&controls=1&playsinline=1"; // add &autoplay=1&mute=1 to start playing
+    const iframe = document.createElement("iframe");
+    iframe.src = url;
+    iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    iframe.allowFullscreen = true;
+    videoEl = iframe;
+  } else {
+    const vid = document.createElement("video");
+    vid.src = beachData.video; // e.g. "/videos/sandown.mp4"
+    vid.playsInline = true;
+    vid.controls = true;      // set to false if you want a totally chrome-free look
+    // vid.muted = true;      // uncomment with autoplay
+    // vid.autoplay = true;   // if you want it to start immediately (mute for mobile)
+    videoEl = vid;
+  }
+
+  mediaSlot.appendChild(videoEl);
+
+  // 3) Wait a beat, then crossfade to the video when it's ready (or after fallback delay)
+  const startSwap = () => {
+    // Fade in video
+    requestAnimationFrame(() => {
+      videoEl.classList.add("show");
+      // Fade out image/placeholder
+      if (imgEl) imgEl.classList.remove("show");
+      else if (mediaSlot.firstChild && mediaSlot.firstChild !== videoEl) {
+        mediaSlot.firstChild.classList.remove("show");
+      }
+      // Remove the placeholder after the fade to keep DOM clean
+      setTimeout(() => {
+        [...mediaSlot.children].forEach((child) => {
+          if (child !== videoEl && !child.classList.contains("show")) {
+            child.remove();
+          }
+        });
+      }, 600);
+    });
+  };
+
+  // Prefer a 1s delay to let users see the image; also wait for load if possible
+  mediaSlot._swapTimeout = setTimeout(() => {
+    // If we can detect readiness, use that; otherwise just swap now
+    if (isEmbeddable) {
+      // iframes don't give a reliable 'loaded video' signal cross-origin; just swap now
+      startSwap();
+    } else if (videoEl.tagName === "VIDEO") {
+      const onCanPlay = () => { videoEl.removeEventListener("canplay", onCanPlay); startSwap(); };
+      // safety net: if canplay never fires soon, just swap anyway
+      const fallback = setTimeout(() => { videoEl.removeEventListener("canplay", onCanPlay); startSwap(); }, 800);
+      videoEl.addEventListener("canplay", () => { clearTimeout(fallback); onCanPlay(); });
+      // kick the browser to buffer
+      // videoEl.load(); // optional; usually not needed
+    } else {
+      startSwap();
+    }
+  }, 3700);
+
+} else if (beachData.image) {
+  // No video: just show the image (with a gentle fade-in)
+  mediaSlot.innerHTML = "";
+  const img = document.createElement("img");
+  img.src = beachData.image;
+  img.alt = beach.name + " photo";
+  mediaSlot.appendChild(img);
+  requestAnimationFrame(() => img.classList.add("show"));
+} else {
+  // Fallback
+  mediaSlot.innerHTML = "";
+  const empty = document.createElement("div");
+  empty.textContent = "No media available";
+  mediaSlot.appendChild(empty);
+  requestAnimationFrame(() => empty.classList.add("show"));
+}
+
 
   // ⛱️ Generate description summary
   const now = new Date();
