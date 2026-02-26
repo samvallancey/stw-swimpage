@@ -1,0 +1,28 @@
+{
+  "name": "swim-the-wight",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Interactive beach conditions dashboard for the Isle of Wight",
+  "scripts": {
+    "dev": "vite --port 8080",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write \"src/**/*.{js,css,json}\"",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "d3": "^7.9.0",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
+    "eslint": "^10.0.2",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "vite": "^7.3.1"
+  }
+}
