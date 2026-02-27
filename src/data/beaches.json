@@ -1,0 +1,67 @@
+{
+  "beaches": [
+    { "name": "Sandown", "coords": [50.651659, -1.160827] },
+    { "name": "Shanklin", "coords": [50.627777, -1.177225] },
+    { "name": "Ventnor", "coords": [50.594139, -1.208685] },
+    { "name": "Compton Bay", "coords": [50.65481, -1.467071] },
+    { "name": "Totland", "coords": [50.682695, -1.544676] },
+    { "name": "Colwell Bay", "coords": [50.693213, -1.534249] },
+    { "name": "Gurnard Bay", "coords": [50.76263, -1.324066] },
+    { "name": "East Cowes", "coords": [50.759, -1.289] },
+    { "name": "Osborne Bay", "coords": [50.755122, -1.255789] },
+    { "name": "Ryde Beach", "coords": [50.731372, -1.149723] },
+    { "name": "Appley Beach", "coords": [50.727313, -1.138162] },
+    { "name": "Seagrove Bay", "coords": [50.717, -1.111] }
+  ],
+  "tideStations": {
+    "Ryde": [50.729486, -1.16245],
+    "Bembridge Approach": [50.685, -1.073],
+    "Totland Bay": [50.682695, -1.544676],
+    "Cowes": [50.763, -1.298],
+    "Sandown": [50.651659, -1.160827],
+    "Yarmouth": [50.705, -1.5],
+    "Ventnor": [50.594139, -1.208685],
+    "Freshwater Bay": [50.668, -1.526],
+    "Foreland": [50.685, -1.085]
+  },
+  "descriptions": {
+    "Sandown": {
+      "image": "https://lh5.googleusercontent.com/p/AF1QipNTDVuQN1X-pRhtDOvkzgH88J6pzXJuqDTnaVEv=w408-h544-k-no",
+      "video": "https://www.youtube.com/embed/zITv7NFN0HI?si=xfSA1IfC7Ofm0WbJ&autoplay=1&mute=1&rel=1&modestbranding=1&controls=0&showinfo=0",
+      "text": "A long sandy beach popular for swimming and family fun, backed by a traditional promenade."
+    },
+    "Shanklin": {
+      "text": "Charming seafront with golden sands, a Victorian esplanade, and dramatic cliffs."
+    },
+    "Ventnor": {
+      "text": "A sheltered south-facing beach beneath steep cliffs, with a Victorian seaside character and some of the warmest waters on the island."
+    },
+    "Compton Bay": {
+      "text": "A dramatic sweep of sand backed by crumbling clay cliffs, popular with surfers and fossil hunters. One of the island's most unspoilt beaches."
+    },
+    "Totland": {
+      "text": "A peaceful pebble-and-sand beach at the western tip of the island, with views towards the Needles and Hurst Castle."
+    },
+    "Colwell Bay": {
+      "text": "A family-friendly bay with a mix of sand and shingle, offering calm waters and fine sunset views across the Solent."
+    },
+    "Gurnard Bay": {
+      "text": "A quiet village beach on the north coast, popular with dinghy sailors, with views across the Solent to the mainland."
+    },
+    "East Cowes": {
+      "text": "A small beach near the historic Osborne House, with views of the busy Solent shipping lanes and the Cowes waterfront."
+    },
+    "Osborne Bay": {
+      "text": "A secluded pebbly beach on the grounds of Queen Victoria's former residence, accessible from the coastal path."
+    },
+    "Ryde Beach": {
+      "text": "One of the island's longest sandy beaches, stretching from the pier eastward, with excellent facilities and shallow paddling waters."
+    },
+    "Appley Beach": {
+      "text": "A sandy beach east of Ryde, recognisable by its distinctive Appley Tower. A quieter alternative to busy Ryde Beach."
+    },
+    "Seagrove Bay": {
+      "text": "A small, sheltered bay near Bembridge, offering calm swimming and a relaxed atmosphere away from the busier resorts."
+    }
+  }
+}
