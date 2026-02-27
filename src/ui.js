@@ -7,7 +7,10 @@ const COLLAPSIBLES_KEY = 'stw-collapsibles';
 
 function getStoredTheme() {
   const stored = localStorage.getItem(THEME_KEY);
-  return stored === 'light' ? 'light' : 'dark';
+  if (stored === 'light' || stored === 'dark') {
+    return stored;
+  }
+  return 'light';
 }
 
 function setThemeButtonState(theme) {
@@ -16,9 +19,11 @@ function setThemeButtonState(theme) {
 
   const isLight = theme === 'light';
   button.setAttribute('aria-pressed', String(isLight));
-  const actionLabel = isLight ? 'Enable dark mode' : 'Enable light mode';
+  const nextThemeLabel = isLight ? 'dark mode' : 'light mode';
+  const actionLabel = `Switch to ${nextThemeLabel}`;
   button.setAttribute('aria-label', actionLabel);
   button.setAttribute('title', actionLabel);
+  button.textContent = isLight ? '🌙' : '☀️';
 }
 
 function applyTheme(theme) {
