@@ -71,8 +71,10 @@ export async function updateWeatherForBeach(beach) {
     let mood = 'cloudy';
     if (code === 0 || code === 1) {
       mood = 'sunny';
-    } else if (code === 2 || code === 3 || code === 45 || code === 48) {
+    } else if (code === 2) {
       mood = 'cloudy';
+    } else if (code === 3 || code === 45 || code === 48) {
+      mood = 'overcast';
     } else if (code === 51 || code === 53 || code === 55) {
       mood = 'drizzle';
     } else {
@@ -81,7 +83,13 @@ export async function updateWeatherForBeach(beach) {
     }
 
     if (weatherBox) {
-      weatherBox.classList.remove('weather-sunny', 'weather-cloudy', 'weather-rainy', 'weather-drizzle');
+      weatherBox.classList.remove(
+        'weather-sunny',
+        'weather-cloudy',
+        'weather-overcast',
+        'weather-rainy',
+        'weather-drizzle'
+      );
       weatherBox.classList.add(`weather-${mood}`);
     }
 

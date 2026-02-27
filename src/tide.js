@@ -142,16 +142,16 @@ export function updateTideDataForDate() {
       const elapsedMs = now - lastTide.DateTime;
       const ratio = Math.min(Math.max(elapsedMs / totalMs, 0), 1);
 
-      // 0 = Low at bottom (180deg), 1 = High at top (0deg) if rising; reversed if falling.
-      const baseLow = 180;
-      const baseHigh = 0;
+      // 0 = Low at bottom (180deg), 1 = High at top (0/360deg).
+      // Rising: move clockwise from 6 o'clock (180deg) through 7–11 to 12 (360deg).
+      // Falling: move clockwise from 12 (0deg) through 1–5 to 6 (180deg).
       let angle;
       if (tideIsRising) {
-        angle = baseLow + (baseHigh - baseLow) * ratio;
+        angle = 180 + 180 * ratio; // 180 -> 360
       } else {
-        angle = baseHigh + (baseLow - baseHigh) * ratio;
+        angle = 0 + 180 * ratio; // 0 -> 180
       }
-      clockHand.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+      clockHand.style.transform = `translate(-50%, -100%) rotate(${angle % 360}deg)`;
 
       const diffMs = nextEvent.DateTime - now;
       const diffHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
@@ -177,8 +177,14 @@ export function updateTideDataForDate() {
         const nextHighEvent = nextHigh || previousEvents.find((e) => e.EventType === 'HighWater');
         const nextLowEvent = nextLow || previousEvents.find((e) => e.EventType === 'LowWater');
 
-        highTimeEl.textContent = formatTime(nextHighEvent);
-        lowTimeEl.textContent = formatTime(nextLowEvent);
+        const hideLowTime = tideIsRising;
+        const hideHighTime = !tideIsRising;
+
+        highTimeEl.textContent = hideHighTime ? '' : formatTime(nextHighEvent);
+        lowTimeEl.textContent = hideLowTime ? '' : formatTime(nextLowEvent);
+
+        highTimeEl.classList.toggle('tide-clock-time--hidden', hideHighTime);
+        lowTimeEl.classList.toggle('tide-clock-time--hidden', hideLowTime);
       }
     }
   }

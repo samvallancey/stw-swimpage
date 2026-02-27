@@ -141,11 +141,17 @@ export function initBeachDetailsToggle() {
     setStoredCollapsible(contentId, expanded);
   };
 
+  const hasStored = Object.prototype.hasOwnProperty.call(stored, contentId);
   const storedExpanded = stored[contentId];
-  const initialExpanded = storedExpanded !== undefined ? storedExpanded : false;
+  const initialExpanded = hasStored ? storedExpanded : true;
   setExpanded(initialExpanded);
 
+  if (!hasStored && initialExpanded) {
+    toggle.classList.add('pulse');
+  }
+
   toggle.addEventListener('click', () => {
+    toggle.classList.remove('pulse');
     const expanded = toggle.getAttribute('aria-expanded') === 'true';
     setExpanded(!expanded);
   });
