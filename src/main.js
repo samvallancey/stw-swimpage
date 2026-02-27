@@ -3,7 +3,7 @@ import './styles/main.css';
 
 import state from './state.js';
 import { findClosestTideStation, debounce } from './utils.js';
-import { initMap, createMarkers, showTideStationMarker } from './map.js';
+import { initMap, createMarkers, showTideStationMarker, setMapTheme } from './map.js';
 import {
   fetchTideData,
   generateDateButtons,
@@ -13,10 +13,13 @@ import {
 import { updateWeatherForBeach } from './weather.js';
 import { updateWaveHeightForBeach } from './waves.js';
 import {
-  initToggleDescription,
+  initCollapsibleTiles,
   initFavourites,
+  initThemeToggle,
   updateFavouriteButton,
   updateBeachDescriptionBox,
+  initFavouritesBar,
+  initBeachDetailsToggle,
 } from './ui.js';
 import beachConfig from './data/beaches.json';
 
@@ -50,9 +53,11 @@ function handleDateSelected() {
 }
 
 async function init() {
-  initToggleDescription();
-  initFavourites();
   initMap();
+  initThemeToggle(setMapTheme);
+  initCollapsibleTiles();
+  initFavourites();
+  initBeachDetailsToggle();
 
   try {
     await fetchTideData();
@@ -63,6 +68,7 @@ async function init() {
 
   generateDateButtons(handleDateSelected);
   createMarkers(beaches, debouncedHandleBeachSelected);
+  initFavouritesBar(beaches, debouncedHandleBeachSelected);
 
   window.addEventListener('resize', debounce(drawTideChart, 250));
 }

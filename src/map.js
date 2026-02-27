@@ -3,6 +3,36 @@ import L from 'leaflet';
 let map;
 let selectedMarkerElement = null;
 let closestTideMarker = null;
+let baseLayer = null;
+let labelsLayer = null;
+let mapTheme = 'dark';
+
+const TILE_OPTIONS = {
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 20,
+  detectRetina: true,
+};
+
+function tileUrlForTheme(theme) {
+  return theme === 'light'
+    ? 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+}
+
+function applyBaseLayer(theme) {
+  if (!map) return;
+  if (baseLayer) map.removeLayer(baseLayer);
+  if (labelsLayer) {
+    map.removeLayer(labelsLayer);
+    labelsLayer = null;
+  }
+
+  baseLayer = L.tileLayer(tileUrlForTheme(theme), TILE_OPTIONS).addTo(map);
+
+  mapTheme = theme;
+}
 
 export function initMap() {
   map = L.map('map', {
@@ -15,15 +45,15 @@ export function initMap() {
     zoom: 10,
   });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 20,
-    detectRetina: true,
-  }).addTo(map);
+  applyBaseLayer(mapTheme);
 
   return map;
+}
+
+export function setMapTheme(theme) {
+  const nextTheme = theme === 'light' ? 'light' : 'dark';
+  if (mapTheme === nextTheme && baseLayer) return;
+  applyBaseLayer(nextTheme);
 }
 
 export function createMarkers(beaches, onBeachSelected) {

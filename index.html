@@ -13,7 +13,9 @@
         alt="Swim The Wight logo"
         class="logo"
       />
-      <div class="title">Swim The Wight</div>
+      <div class="banner-right">
+        <div class="title">Swim The Wight</div>
+      </div>
     </header>
 
     <div id="map" role="application" aria-label="Interactive beach map of the Isle of Wight"></div>
@@ -31,79 +33,303 @@
               ♡
             </button>
             <span id="selected-beach-name">Sandown</span>
+          </h3>
+          <div class="beach-tags-row">
+            <div id="beach-tags" class="beach-tags">Beach • details</div>
             <button
-              id="toggle-description"
-              class="dropdown-toggle"
-              aria-expanded="true"
-              aria-label="Toggle beach description"
+              id="beach-tags-toggle"
+              class="beach-tags-toggle"
+              aria-expanded="false"
+              aria-label="Show beach details"
+              aria-controls="beach-description"
+              type="button"
             >
               ▾
             </button>
-          </h3>
+          </div>
+        </div>
+
+        <div class="collapsible-card beach-description-card is-collapsed" role="region" aria-label="Beach description">
+          <div class="card-header beach-card-header">
+            <h3>Beach</h3>
+          </div>
+          <div id="beach-description" class="beach-description collapsible-content collapsed">
+            <div id="beach-media" class="beach-media"></div>
+            <div id="beach-description-text">Loading...</div>
+          </div>
         </div>
 
         <div
-          id="beach-description"
-          class="beach-description expanded"
+          class="collapsible-card beach-conditions-card"
           role="region"
-          aria-label="Beach description"
+          aria-label="Current beach conditions summary"
         >
-          <div id="beach-media" class="beach-media"></div>
-          <div id="beach-description-text">Loading...</div>
+          <div class="card-header">
+            <h3>Conditions</h3>
+            <button
+              class="tile-toggle"
+              aria-expanded="true"
+              aria-label="Toggle current conditions summary"
+              aria-controls="beach-conditions"
+              data-collapsible-toggle
+            >
+              ▾
+            </button>
+          </div>
+          <div id="beach-conditions" class="beach-conditions collapsible-content">
+            <div class="conditions-grid">
+              <div class="condition-metric">
+                <span class="condition-label">Tide</span>
+                <div class="condition-value-row">
+                  <span id="cond-tide" class="condition-value">-- m</span>
+                  <span class="condition-secondary condition-tide-next">
+                    <span
+                      id="cond-tide-arrow"
+                      class="condition-tide-arrow"
+                      aria-hidden="true"
+                    >
+                      ↕
+                    </span>
+                    <span id="cond-tide-next" class="condition-tide-next-text">--</span>
+                  </span>
+                </div>
+              </div>
+              <div class="condition-metric">
+                <span class="condition-label">Waves</span>
+                <div class="condition-value-row">
+                  <span id="cond-waves" class="condition-value">-- m</span>
+                  <span id="cond-waves-period" class="condition-secondary">-- s</span>
+                </div>
+              </div>
+              <div class="condition-metric">
+                <span class="condition-label">Sea temp</span>
+                <span id="cond-sea-temp" class="condition-value">-- °C</span>
+              </div>
+              <div class="condition-metric">
+                <span class="condition-label">Wind</span>
+                <span id="cond-wind" class="condition-value">-- km/h</span>
+              </div>
+            </div>
+            <div id="cond-eval" class="condition-eval">Loading...</div>
+          </div>
         </div>
 
         <div class="info-content">
           <div class="info-row">
-            <div class="info-item tide" id="tide-box" role="region" aria-label="Tide information">
-              <div class="loading-skeleton">Loading tide data...</div>
-            </div>
-            <div id="wave-box" class="info-item wave-box" role="region" aria-label="Wave height">
-              <div class="wave-fill-bg" id="wave-fill"></div>
-              <div style="position: relative; z-index: 2">
-                <h3 style="margin-bottom: 6px">Wave Height</h3>
-                <div id="wave-height" style="font-size: 24px; font-weight: bold">-- m</div>
-                <div id="wave-description" style="color: #ccc; font-size: 14px">Loading...</div>
+            <div class="info-item tide collapsible-card tide-details-enabled is-flipped" role="region" aria-label="Tide information">
+              <div class="card-header">
+                <h3>Tide</h3>
+                <button
+                  class="tile-toggle"
+                  aria-expanded="true"
+                  aria-label="Toggle tide information"
+                  aria-controls="tide-box"
+                  data-collapsible-toggle
+                >
+                  ▾
+                </button>
               </div>
-            </div>
-          </div>
-
-          <div class="info-row">
-            <div id="uv-box" class="info-item" role="region" aria-label="UV index">
-              <h3>UV Index</h3>
-              <div class="uv-inner">
-                <div id="uv-index-value" class="uv-value">--</div>
-                <div id="uv-level" class="uv-label">--</div>
-                <div class="uv-bar">
-                  <div class="uv-bar-fill" id="uv-bar-fill"></div>
-                  <div id="uv-indicator-wrapper">
-                    <div id="uv-indicator"></div>
+              <div id="tide-box" class="collapsible-content">
+                <div class="tide-flip">
+                  <div class="tide-face tide-front">
+                    <div id="tide-front-inner">
+                      <div class="loading-skeleton">Loading tide data...</div>
+                    </div>
+                    <button
+                      type="button"
+                      id="tide-details-button"
+                      class="tide-details-button"
+                      aria-pressed="true"
+                      aria-label="Show tide list"
+                    ></button>
+                  </div>
+                  <div class="tide-face tide-back">
+                    <div class="tide-clock">
+                      <div class="tide-clock-inner">
+                        <div class="tide-clock-label tide-clock-high">
+                          <span>High</span>
+                          <span id="tide-clock-high-time" class="tide-clock-time">--:--</span>
+                        </div>
+                        <div class="tide-clock-label tide-clock-low">
+                          <span>Low</span>
+                          <span id="tide-clock-low-time" class="tide-clock-time">--:--</span>
+                        </div>
+                        <div class="tide-clock-hand"></div>
+                        <div class="tide-clock-center"></div>
+                      </div>
+                      <div id="tide-clock-caption" class="tide-clock-caption">Loading...</div>
+                    </div>
+                    <button
+                      type="button"
+                      id="tide-back-button"
+                      class="tide-back-button"
+                      aria-label="Back to tide list"
+                    ></button>
                   </div>
                 </div>
               </div>
             </div>
-            <div id="weather-box" class="info-item" role="region" aria-label="Weather conditions">
-              <div class="weather-inner">
-                <div class="weather-left">
-                  <div id="weather-icon">☁️</div>
-                  <div id="weather-temp-big">--</div>
-                  <div class="unit">°C</div>
+            <div id="wave-box" class="info-item wave-box collapsible-card" role="region" aria-label="Wave height">
+              <div class="card-header">
+                <h3>Wave</h3>
+                <button
+                  class="tile-toggle"
+                  aria-expanded="true"
+                  aria-label="Toggle wave information"
+                  aria-controls="wave-content"
+                  data-collapsible-toggle
+                >
+                  ▾
+                </button>
+              </div>
+              <div id="wave-content" class="collapsible-content">
+                <div class="wave-fill-bg" id="wave-fill"></div>
+                <div class="wave-flip">
+                  <div class="wave-face wave-front">
+                    <div class="wave-content">
+                      <div id="wave-height">-- m</div>
+                      <div id="wave-description">Loading...</div>
+                      <div class="wave-meta">
+                        <div class="wave-meta-item">
+                          <span class="wave-meta-label">Period</span>
+                          <span id="wave-tp" class="wave-meta-value">-- s</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        id="wave-details-button"
+                        class="wave-details-button"
+                        aria-pressed="false"
+                        aria-label="Show wave details"
+                      ></button>
+                    </div>
+                  </div>
+                  <div class="wave-face wave-back">
+                    <div class="wave-content wave-content-back">
+                      <button
+                        type="button"
+                        id="wave-back-button"
+                        class="wave-back-button"
+                        aria-label="Back to wave overview"
+                      ></button>
+                      <div id="wave-details" class="wave-details">
+                        <div class="wave-details-grid">
+                          <div class="wave-detail">
+                            <span class="wave-detail-label">Hmax</span>
+                            <span class="wave-detail-value">--</span>
+                          </div>
+                          <div class="wave-detail">
+                            <span class="wave-detail-label">Tz</span>
+                            <span class="wave-detail-value">--</span>
+                          </div>
+                          <div class="wave-detail">
+                            <span class="wave-detail-label">Dir</span>
+                            <span class="wave-detail-value">--</span>
+                          </div>
+                          <div class="wave-detail">
+                            <span class="wave-detail-label">Spread</span>
+                            <span class="wave-detail-value">--</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="weather-right">
-                  <p id="weather-condition-text">Condition: --</p>
-                  <p id="weather-rain">Precipitation: --%</p>
-                  <p id="weather-humidity">Humidity: --%</p>
-                  <p id="weather-wind">Wind: -- km/h</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-row info-row-single">
+            <div id="weather-box" class="info-item collapsible-card" role="region" aria-label="Weather, wind and UV">
+              <div class="card-header">
+                <h3>Weather</h3>
+                <button
+                  class="tile-toggle"
+                  aria-expanded="true"
+                  aria-label="Toggle weather information"
+                  aria-controls="weather-content"
+                  data-collapsible-toggle
+                >
+                  ▾
+                </button>
+              </div>
+              <div id="weather-content" class="collapsible-content">
+                <div class="weather-rain front-row" aria-hidden="true"></div>
+                <div class="weather-rain back-row" aria-hidden="true"></div>
+                <div class="weather-inner">
+                  <div class="weather-summary">
+                    <div class="weather-left">
+                      <div id="weather-icon">☁️</div>
+                      <div class="weather-temp-wrap">
+                        <div id="weather-temp-big">--</div>
+                        <div class="unit">°C</div>
+                      </div>
+                    </div>
+                    <p id="weather-condition-text">Condition: --</p>
+                  </div>
+                  <div class="weather-stats-grid weather-stats-grid-triple">
+                    <div class="weather-stat-card">
+                      <span class="weather-stat-label">Precip</span>
+                      <span id="weather-rain" class="weather-stat-value">--%</span>
+                    </div>
+                    <div class="weather-stat-card">
+                      <span class="weather-stat-label">Humidity</span>
+                      <span id="weather-humidity" class="weather-stat-value">--%</span>
+                    </div>
+                    <div class="weather-stat-card weather-stat-card-compact">
+                      <span class="weather-stat-label">Wind</span>
+                      <span id="weather-wind" class="weather-stat-value">-- km/h</span>
+                      <span id="wind-level" class="weather-stat-sub">Loading...</span>
+                    </div>
+                  </div>
+                  <div class="uv-bar-wrap">
+                    <div class="uv-bar-header">
+                      <span class="uv-bar-label">UV Index</span>
+                      <span id="uv-index-value" class="uv-bar-value">--</span>
+                      <span id="uv-level" class="uv-bar-level">—</span>
+                    </div>
+                    <div class="uv-bar-track">
+                      <div id="uv-bar-fill" class="uv-bar-fill"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div id="chart-section" role="region" aria-label="Tide chart">
-          <div id="date-selector" role="group" aria-label="Select forecast date"></div>
-          <div id="tide-chart-container"></div>
+        <div id="chart-section" class="collapsible-card" role="region" aria-label="Tide chart">
+          <div class="card-header">
+            <h3 class="chart-title">Tide</h3>
+            <button
+              class="tile-toggle"
+              aria-expanded="true"
+              aria-label="Toggle tide chart"
+              aria-controls="chart-content"
+              data-collapsible-toggle
+            >
+              ▾
+            </button>
+          </div>
+          <div id="chart-content" class="collapsible-content">
+            <div id="date-selector" role="group" aria-label="Select forecast date"></div>
+            <div id="tide-chart-container"></div>
+          </div>
         </div>
       </div>
     </main>
+
+    <div id="bottom-bar" class="bottom-bar" aria-label="Favourite beaches and theme">
+      <div id="favourites-bar" class="favourites-bar" aria-label="Favourite beaches"></div>
+      <button
+        id="theme-toggle"
+        type="button"
+        aria-label="Enable light mode"
+        aria-pressed="false"
+        title="Enable light mode"
+      >
+        ☀️
+      </button>
+    </div>
   </body>
 </html>

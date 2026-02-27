@@ -5,6 +5,11 @@ import { fetchWithRetry } from './utils.js';
 const TIDE_API_URL =
   'https://gemcxasoc2.execute-api.eu-north-1.amazonaws.com/dev/getTideData';
 
+function readThemeColor(tokenName, fallback) {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(tokenName).trim();
+  return value || fallback;
+}
+
 export async function fetchTideData() {
   const response = await fetchWithRetry(TIDE_API_URL);
   state.tideData = await response.json();
@@ -22,8 +27,8 @@ export function generateDateButtons(onDateSelect) {
     const dateStr = futureDate.toISOString().split('T')[0];
 
     const button = document.createElement('button');
-    const dayOfWeek = futureDate.toLocaleString('en-US', { weekday: 'short' })[0];
-    button.innerHTML = `<span>${dayOfWeek}</span>${futureDate.getDate()}`;
+    const dayOfWeek = futureDate.toLocaleString('en-US', { weekday: 'short' });
+    button.textContent = `${dayOfWeek} ${futureDate.getDate()}`;
     button.dataset.date = dateStr;
     button.setAttribute(
       'aria-label',
@@ -50,7 +55,8 @@ export function generateDateButtons(onDateSelect) {
 }
 
 export function updateTideDataForDate() {
-  const container = document.getElementById('tide-box');
+  const container = document.getElementById('tide-front-inner') || document.getElementById('tide-box');
+  if (!container) return;
   container.innerHTML = '';
 
   if (
@@ -82,9 +88,9 @@ export function updateTideDataForDate() {
   const tideIsRising = lastTide?.EventType === 'LowWater';
 
   const statusEl = document.createElement('div');
-  statusEl.className = 'tide-status';
+  statusEl.className = `tide-status ${tideIsRising ? 'is-rising' : 'is-falling'}`;
   statusEl.innerHTML = `
-    ${tideIsRising ? getRisingArrowSVG('pulse') : getFallingArrowSVG('pulse')}
+    ${tideIsRising ? getRisingArrowSVG() : getFallingArrowSVG()}
     <span>${tideIsRising ? 'Tide is rising' : 'Tide is falling'}</span>
   `;
   container.appendChild(statusEl);
@@ -100,10 +106,11 @@ export function updateTideDataForDate() {
     .slice(0, 2);
 
   tidesToShow.forEach((event, index) => {
-    const label = event.EventType === 'LowWater' ? 'Low Water in' : 'High Water in';
+    const label = event.EventType === 'LowWater' ? 'Low tide' : 'High tide';
     const diffMs = event.DateTime - now;
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffMs / (1000 * 60)) % 60);
+    const countdown = `${diffHours}h ${diffMinutes}m`;
     const timeStr = event.DateTime.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
@@ -114,13 +121,95 @@ export function updateTideDataForDate() {
     if (index === 0) block.classList.add('highlight');
 
     block.innerHTML = `
-      <div class="tide-label">
-        ${label}: <span class="bold">${diffHours}h ${diffMinutes}m</span>
-        <time>(${timeStr})</time>
+      <div class="tide-row">
+        <span class="tide-kind">${label}</span>
+        <span class="tide-countdown">in ${countdown}</span>
       </div>
+      <time class="tide-time">at ${timeStr}</time>
     `;
     container.appendChild(block);
   });
+
+  // Update flip clock on back face
+  const tideCard = document.querySelector('.info-item.tide');
+  const clockHand = document.querySelector('.tide-clock-hand');
+  const caption = document.getElementById('tide-clock-caption');
+
+  if (tideCard && clockHand && caption && lastTide && (nextLow || nextHigh)) {
+    const nextEvent = tideIsRising ? nextHigh : nextLow;
+    if (nextEvent) {
+      const totalMs = nextEvent.DateTime - lastTide.DateTime;
+      const elapsedMs = now - lastTide.DateTime;
+      const ratio = Math.min(Math.max(elapsedMs / totalMs, 0), 1);
+
+      // 0 = Low at bottom (180deg), 1 = High at top (0deg) if rising; reversed if falling.
+      const baseLow = 180;
+      const baseHigh = 0;
+      let angle;
+      if (tideIsRising) {
+        angle = baseLow + (baseHigh - baseLow) * ratio;
+      } else {
+        angle = baseHigh + (baseLow - baseHigh) * ratio;
+      }
+      clockHand.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+
+      const diffMs = nextEvent.DateTime - now;
+      const diffHours = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60)));
+      const diffMinutes = Math.max(0, Math.floor((diffMs / (1000 * 60)) % 60));
+      const countdown = `${diffHours}h ${diffMinutes}m`;
+      const isNextLow = nextEvent.EventType === 'LowWater';
+      const nextLabel = isNextLow ? 'low tide' : 'high tide';
+      caption.textContent = `${countdown} to ${nextLabel}`;
+
+      const highTimeEl = document.getElementById('tide-clock-high-time');
+      const lowTimeEl = document.getElementById('tide-clock-low-time');
+      if (highTimeEl && lowTimeEl) {
+        const formatTime = (event) =>
+          event
+            ? event.DateTime.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              })
+            : '--:--';
+
+        // Prefer upcoming events; fall back to last events of each type if needed
+        const nextHighEvent = nextHigh || previousEvents.find((e) => e.EventType === 'HighWater');
+        const nextLowEvent = nextLow || previousEvents.find((e) => e.EventType === 'LowWater');
+
+        highTimeEl.textContent = formatTime(nextHighEvent);
+        lowTimeEl.textContent = formatTime(nextLowEvent);
+      }
+    }
+  }
+
+  // One-time setup for flip interaction
+  if (tideCard && !tideCard.dataset.tideDetailsInit) {
+    const detailsButton = document.getElementById('tide-details-button');
+    const backButton = document.getElementById('tide-back-button');
+    if (detailsButton && backButton) {
+      tideCard.dataset.tideDetailsInit = 'true';
+      tideCard.classList.add('tide-details-enabled');
+
+      const toggleFlip = (evt) => {
+        const header = tideCard.querySelector('.card-header');
+        if (header && header.contains(evt.target)) return;
+
+        const flipped = tideCard.classList.toggle('is-flipped');
+        detailsButton.setAttribute('aria-pressed', flipped ? 'true' : 'false');
+      };
+
+      tideCard.addEventListener('click', toggleFlip);
+      detailsButton.addEventListener('click', (evt) => {
+        evt.stopPropagation();
+        toggleFlip(evt);
+      });
+      backButton.addEventListener('click', (evt) => {
+        evt.stopPropagation();
+        toggleFlip(evt);
+      });
+    }
+  }
 }
 
 function getRisingArrowSVG(className = '') {
@@ -230,27 +319,23 @@ export function drawTideChart() {
   const predictions = generatePredictions(filteredData, state.selectedDate);
 
   const startTime = new Date(`${state.selectedDate}T03:00:00`);
-  const endTime = new Date(`${state.selectedDate}T23:59:59`);
+  const endTime = new Date(`${state.selectedDate}T21:00:00`);
 
   const visiblePredictions = predictions.filter(
     (d) => d.DateTime >= startTime && d.DateTime <= endTime
   );
 
-  const beforeStart = [...predictions].reverse().find((p) => p.DateTime < startTime);
-  const afterStart = predictions.find((p) => p.DateTime > startTime);
-
-  if (beforeStart && afterStart) {
-    const totalTime = afterStart.DateTime - beforeStart.DateTime;
-    const ratio = (startTime - beforeStart.DateTime) / totalTime;
-    const interpolatedHeight =
-      beforeStart.Height + ratio * (afterStart.Height - beforeStart.Height);
-    visiblePredictions.unshift({ DateTime: startTime, Height: interpolatedHeight });
-  }
+  if (visiblePredictions.length < 2) return;
 
   const container = document.getElementById('tide-chart-container');
-  const margin = { top: 20, right: 20, bottom: 50, left: 50 };
+  const margin = { top: 10, right: 14, bottom: 34, left: 34 };
   const width = container.offsetWidth - margin.left - margin.right;
-  const height = 250;
+  const height = 210;
+  const chartLineColor = readThemeColor('--color-chart-line', '#90caf9');
+  const chartAreaColor = readThemeColor('--color-chart-line', '#90caf9');
+  const axisColor = readThemeColor('--color-chart-axis', '#c6d5ea');
+  const gridColor = readThemeColor('--color-chart-grid', 'rgba(198, 213, 234, 0.22)');
+  const markerColor = readThemeColor('--color-text', '#ffffff');
 
   const x = d3.scaleTime().domain([startTime, endTime]).range([0, width]);
   const y = d3.scaleLinear().domain([0, 4.5]).range([height, 0]);
@@ -267,26 +352,77 @@ export function drawTideChart() {
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
+  const defs = svg.append('defs');
+  const areaGradient = defs
+    .append('linearGradient')
+    .attr('id', 'tide-area-gradient')
+    .attr('x1', '0%')
+    .attr('y1', '0%')
+    .attr('x2', '0%')
+    .attr('y2', '100%');
+  areaGradient.append('stop').attr('offset', '0%').attr('stop-color', chartAreaColor).attr('stop-opacity', 0.2);
+  areaGradient.append('stop').attr('offset', '100%').attr('stop-color', chartAreaColor).attr('stop-opacity', 0);
+
   const line = d3
     .line()
     .x((d) => x(d.DateTime))
     .y((d) => y(d.Height))
-    .curve(d3.curveCatmullRom.alpha(0.1));
+    .curve(d3.curveMonotoneX);
+
+  const area = d3
+    .area()
+    .x((d) => x(d.DateTime))
+    .y0(y(0))
+    .y1((d) => y(d.Height))
+    .curve(d3.curveMonotoneX);
+
+  svg
+    .append('path')
+    .datum(visiblePredictions)
+    .attr('fill', 'url(#tide-area-gradient)')
+    .attr('d', area);
 
   svg
     .append('path')
     .datum(visiblePredictions)
     .attr('fill', 'none')
-    .attr('stroke', 'lightblue')
-    .attr('stroke-width', 2)
+    .attr('stroke', chartLineColor)
+    .attr('stroke-width', 3)
+    .attr('stroke-linecap', 'round')
+    .attr('stroke-linejoin', 'round')
     .attr('d', line);
+
+  const xAxis = svg
+    .append('g')
+    .attr('transform', `translate(0,${height})`)
+    .call(
+      d3
+        .axisBottom(x)
+        .ticks(d3.timeHour.every(6))
+        .tickFormat((d) => `${String(d.getHours()).padStart(2, '0')}:00`)
+    );
+
+  const yAxis = svg.append('g').call(d3.axisLeft(y).ticks(3).tickFormat((d) => `${d.toFixed(1)}m`));
+
+  xAxis.selectAll('path, line').attr('stroke', axisColor);
+  xAxis.selectAll('text').attr('fill', axisColor);
+  yAxis.selectAll('path, line').attr('stroke', axisColor);
+  yAxis.selectAll('text').attr('fill', axisColor);
+  xAxis.selectAll('text').attr('font-size', '11px').attr('font-weight', '500');
+  yAxis.selectAll('text').attr('font-size', '11px').attr('font-weight', '500');
+  xAxis.select('.domain').attr('stroke-opacity', 0.35);
+  yAxis.select('.domain').attr('stroke-opacity', 0);
+  yAxis.selectAll('.tick line').attr('stroke-opacity', 0);
 
   svg
     .append('g')
-    .attr('transform', `translate(0,${height})`)
-    .call(d3.axisBottom(x).ticks(12).tickFormat(d3.timeFormat('%H:%M')));
-
-  svg.append('g').call(d3.axisLeft(y));
+    .attr('class', 'tide-grid')
+    .call(d3.axisLeft(y).ticks(3).tickSize(-width).tickFormat(''))
+    .selectAll('line')
+    .attr('stroke', gridColor)
+    .attr('stroke-dasharray', '1,7')
+    .attr('stroke-opacity', 0.5);
+  svg.select('.tide-grid path').attr('stroke', 'none');
 
   if (state.sunriseTime && state.sunsetTime) {
     const sunrise = new Date(state.sunriseTime);
@@ -344,8 +480,8 @@ export function drawTideChart() {
   const hoverCircle = svg
     .append('circle')
     .attr('r', 4)
-    .attr('fill', 'white')
-    .style('filter', 'drop-shadow(0px 0px 6px white)')
+    .attr('fill', markerColor)
+    .style('filter', `drop-shadow(0px 0px 6px ${markerColor})`)
     .style('display', 'none');
 
   svg
