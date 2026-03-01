@@ -41,6 +41,7 @@ export async function updateWaveHeightForBeach(beach) {
     const spreadNode = xmlDoc.querySelector('ms\\:spread, spread');
     const teNode = xmlDoc.querySelector('ms\\:te, te');
     const sstNode = xmlDoc.querySelector('ms\\:sst, sst');
+    const powerNode = xmlDoc.querySelector('ms\\:power, power');
 
     const hs = parseFloat(hsNode?.textContent ?? '0') || 0;
     const hmax = parseFloat(hmaxNode?.textContent ?? '0') || 0;
@@ -50,10 +51,12 @@ export async function updateWaveHeightForBeach(beach) {
     const spread = parseFloat(spreadNode?.textContent ?? '0') || 0;
     const te = parseFloat(teNode?.textContent ?? '0') || 0;
     const sst = parseFloat(sstNode?.textContent ?? '0') || 0;
+    const power = parseFloat(powerNode?.textContent ?? '') || null; // Wave power kW/m (CCO-calculated)
 
     state.currentWaveHeight = hs;
     state.currentSeaTemperature = sst;
     state.currentWavePeriod = tp || tz || 0;
+    state.currentWavePower = power;
 
     updateWaveSVG(hs, tp);
 
@@ -114,6 +117,10 @@ export async function updateWaveHeightForBeach(beach) {
             <span class="wave-detail-label">SST</span>
             <span class="wave-detail-value">${sst ? sst.toFixed(1) + ' °C' : '--'}</span>
           </div>
+          <div class="wave-detail">
+            <span class="wave-detail-label">Power</span>
+            <span class="wave-detail-value">${power != null ? power.toFixed(1) + ' kW/m' : '--'}</span>
+          </div>
         </div>
       `;
 
@@ -143,6 +150,7 @@ export async function updateWaveHeightForBeach(beach) {
       }
     }
   } catch (_err) {
+    state.currentWavePower = null;
     const descEl = document.getElementById('wave-description');
     const waveTpEl = document.getElementById('wave-tp');
 

@@ -1573,6 +1573,20 @@ main::before {
   gap: 8px;
 }
 
+.condition-waves-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.condition-waves-sep {
+  color: var(--color-subtle);
+  opacity: 0.6;
+  font-size: 10px;
+  user-select: none;
+}
+
 .condition-secondary {
   font-size: 11px;
   color: var(--color-subtle);
@@ -1588,6 +1602,33 @@ main::before {
 
 .condition-tide-arrow {
   font-size: 11px;
+}
+
+.condition-wind-dir {
+  position: relative;
+  display: inline-block;
+}
+
+.condition-wind-arrow {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: -8px;
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+  transform-origin: center;
+  animation: windVaneWiggle 2.5s ease-in-out infinite;
+}
+
+@keyframes windVaneWiggle {
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(calc(var(--wind-direction-deg, 0deg) - 4deg));
+  }
+  50% {
+    transform: translateX(-50%) rotate(calc(var(--wind-direction-deg, 0deg) + 4deg));
+  }
 }
 
 /* (tide arrow styles removed – replaced with subtle text) */

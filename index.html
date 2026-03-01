@@ -98,7 +98,11 @@
                 <span class="condition-label">Waves</span>
                 <div class="condition-value-row">
                   <span id="cond-waves" class="condition-value">-- m</span>
-                  <span id="cond-waves-period" class="condition-secondary">-- s</span>
+                  <span class="condition-waves-right">
+                    <span id="cond-waves-period" class="condition-secondary">-- s</span>
+                    <span class="condition-waves-sep" aria-hidden="true">·</span>
+                    <span id="cond-waves-power" class="condition-secondary">-- kW/m</span>
+                  </span>
                 </div>
               </div>
               <div class="condition-metric">
@@ -107,7 +111,19 @@
               </div>
               <div class="condition-metric">
                 <span class="condition-label">Wind</span>
-                <span id="cond-wind" class="condition-value">-- km/h</span>
+                <div class="condition-value-row">
+                  <span id="cond-wind" class="condition-value">-- km/h</span>
+                  <span class="condition-wind-dir">
+                    <span
+                      id="cond-wind-arrow"
+                      class="condition-wind-arrow"
+                      aria-hidden="true"
+                    >
+                      ↑
+                    </span>
+                    <span id="cond-wind-dir-text" class="condition-secondary">--</span>
+                  </span>
+                </div>
               </div>
             </div>
             <div id="cond-eval" class="condition-eval">Loading...</div>

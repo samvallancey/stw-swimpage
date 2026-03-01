@@ -381,6 +381,14 @@ function renderSwimConditionText(descText, conditionsText, beachData, stationDat
   const waveHeight = state.currentWaveHeight || 0;
   const seaTemp = state.currentSeaTemperature || 0;
   const wavePeriod = state.currentWavePeriod || 0;
+  const windDirDeg = state.currentWindDirectionDeg;
+
+  let windDirLabel = '--';
+  if (typeof windDirDeg === 'number' && Number.isFinite(windDirDeg)) {
+    const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const idx = Math.round(((windDirDeg % 360) / 45)) % 8;
+    windDirLabel = dirs[idx];
+  }
 
   let windDescription = 'calm';
   if (windSpeed > 15) windDescription = 'very windy';
@@ -407,8 +415,11 @@ function renderSwimConditionText(descText, conditionsText, beachData, stationDat
   const tideEl = document.getElementById('cond-tide');
   const waveEl = document.getElementById('cond-waves');
   const wavePeriodEl = document.getElementById('cond-waves-period');
+  const wavePowerEl = document.getElementById('cond-waves-power');
   const seaTempEl = document.getElementById('cond-sea-temp');
   const windEl = document.getElementById('cond-wind');
+  const windArrowEl = document.getElementById('cond-wind-arrow');
+  const windDirTextEl = document.getElementById('cond-wind-dir-text');
   const evalEl = document.getElementById('cond-eval');
 
   if (tideEl) tideEl.textContent = `${currentTideHeight} m`;
@@ -446,8 +457,14 @@ function renderSwimConditionText(descText, conditionsText, beachData, stationDat
   }
   if (waveEl) waveEl.textContent = `${waveHeight.toFixed(1)} m`;
   if (wavePeriodEl) wavePeriodEl.textContent = wavePeriod ? `${wavePeriod.toFixed(1)} s` : '-- s';
+  const wavePower = state.currentWavePower;
+  if (wavePowerEl) wavePowerEl.textContent = wavePower != null ? `${wavePower.toFixed(1)} kW/m` : '-- kW/m';
   if (seaTempEl) seaTempEl.textContent = seaTemp ? `${seaTemp.toFixed(1)} °C` : '-- °C';
   if (windEl) windEl.textContent = `${windSpeed.toFixed(0)} km/h`;
+  if (windArrowEl && typeof windDirDeg === 'number' && Number.isFinite(windDirDeg)) {
+    windArrowEl.style.setProperty('--wind-direction-deg', `${windDirDeg}deg`);
+  }
+  if (windDirTextEl) windDirTextEl.textContent = windDirLabel;
 
   if (evalEl) {
     evalEl.textContent = swimCondition === 'ideal for a swim'
