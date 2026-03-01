@@ -16,7 +16,7 @@ const TUTORIAL_STEPS = [
   {
     id: 'beach-details',
     target: '#beach-tags-toggle',
-    message: 'Click here for details about the beach. A live video will load here if available.',
+    message: 'Tap here to hide/show the details about the beach. A live video will load here if available.',
     arrow: 'bottom',
   },
   {
@@ -28,7 +28,7 @@ const TUTORIAL_STEPS = [
   {
     id: 'chevrons',
     target: '.beach-conditions-card .tile-toggle',
-    message: 'Click the chevrons to collapse or expand a section.',
+    message: 'Tap the chevrons to collapse or expand a section.',
     arrow: 'bottom',
   },
   {
@@ -46,7 +46,7 @@ const TUTORIAL_STEPS = [
   {
     id: 'flippable',
     target: '.wave-details-button',
-    message: 'Cards with a pulsing icon can be flipped for more info.',
+    message: 'Cards with a pulsing icon can be tapped for more info.',
     arrow: 'bottom',
   },
   {
@@ -70,7 +70,7 @@ const TUTORIAL_STEPS = [
   {
     id: 'bulb',
     target: '#tutorial-restore',
-    message: 'Click the bulb to see the tutorial again anytime.',
+    message: 'Tap the bulb to see the tutorial again anytime.',
     arrow: 'top',
   },
 ];

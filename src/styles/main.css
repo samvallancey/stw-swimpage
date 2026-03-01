@@ -466,20 +466,33 @@ main::before {
 
 .beach-tags-toggle {
   flex-shrink: 0;
-  border: none;
-  background: transparent;
-  color: color-mix(in srgb, var(--color-text) 80%, var(--color-subtle));
-  font-size: 16px;
-  width: auto;
-  height: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-outline);
+  background-color: var(--color-icon-button-bg);
+  color: var(--color-text);
+  font-size: 14px;
+  width: 26px;
+  height: 26px;
   padding: 0;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   transform-origin: center;
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition: transform 0.3s ease, background-color 0.25s ease;
+}
+
+.beach-tags-toggle:hover {
+  background-color: var(--color-icon-button-hover);
 }
 
 .beach-tags-toggle[aria-expanded='false'] {
   transform: rotate(-90deg);
+}
+
+.beach-tags-toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .hero-subtitle {
