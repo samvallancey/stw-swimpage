@@ -16,11 +16,13 @@ import {
   initCollapsibleTiles,
   initFavourites,
   initThemeToggle,
+  initBannerScrollHide,
   updateFavouriteButton,
   updateBeachDescriptionBox,
   initFavouritesBar,
   initBeachDetailsToggle,
 } from './ui.js';
+import { initTutorials } from './tutorials.js';
 import beachConfig from './data/beaches.json';
 
 const { beaches, tideStations, descriptions } = beachConfig;
@@ -55,6 +57,8 @@ function handleDateSelected() {
 async function init() {
   initMap();
   initThemeToggle(setMapTheme);
+  initBannerScrollHide();
+  initTutorials();
   initCollapsibleTiles();
   initFavourites();
   initBeachDetailsToggle();

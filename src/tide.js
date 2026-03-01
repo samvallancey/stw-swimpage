@@ -490,6 +490,9 @@ export function drawTideChart() {
     .style('filter', `drop-shadow(0px 0px 6px ${markerColor})`)
     .style('display', 'none');
 
+  const containerWidth = container.offsetWidth;
+  const tooltipGap = 10;
+
   svg
     .append('rect')
     .attr('width', width)
@@ -503,6 +506,9 @@ export function drawTideChart() {
         Math.abs(curr.DateTime - hoverTime) < Math.abs(prev.DateTime - hoverTime) ? curr : prev
       );
 
+      const pointX = margin.left + x(closestPoint.DateTime);
+      const pointY = margin.top + y(closestPoint.Height);
+
       hoverCircle
         .attr('cx', x(closestPoint.DateTime))
         .attr('cy', y(closestPoint.Height))
@@ -512,9 +518,10 @@ export function drawTideChart() {
         .html(
           `<strong>${d3.timeFormat('%H:%M')(closestPoint.DateTime)}</strong><br>Height: ${closestPoint.Height.toFixed(2)}m`
         )
-        .style('left', event.pageX + 10 + 'px')
-        .style('top', event.pageY - 30 + 'px')
-        .style('display', 'block');
+        .style('display', 'block')
+        .style('left', Math.max(50, Math.min(containerWidth - 50, pointX)) + 'px')
+        .style('top', pointY - tooltipGap + 'px')
+        .style('transform', 'translate(-50%, -100%)');
     })
     .on('mouseout', function () {
       hoverCircle.style('display', 'none');

@@ -247,6 +247,7 @@ function renderVideoMedia(mediaSlot, beachData, beachName) {
     clearTimeout(mediaSlot._swapTimeout);
     mediaSlot._swapTimeout = null;
   }
+  mediaSlot.classList.remove('beach-media--video-loading');
 
   let imgEl = null;
   if (beachData.image) {
@@ -255,6 +256,9 @@ function renderVideoMedia(mediaSlot, beachData, beachName) {
     imgEl.alt = beachName + ' photo';
     mediaSlot.appendChild(imgEl);
     requestAnimationFrame(() => imgEl.classList.add('show'));
+    if (beachData.video) {
+      mediaSlot.classList.add('beach-media--video-loading');
+    }
   } else {
     const placeholder = document.createElement('div');
     placeholder.style.background = '#0f0f0f';
@@ -269,7 +273,7 @@ function renderVideoMedia(mediaSlot, beachData, beachName) {
     const url =
       beachData.video +
       (beachData.video.includes('?') ? '&' : '?') +
-      'rel=0&modestbranding=1&controls=1&playsinline=1';
+      'autoplay=1&mute=1&rel=0&modestbranding=1&controls=1&playsinline=1';
     const iframe = document.createElement('iframe');
     iframe.src = url;
     iframe.allow =
@@ -289,6 +293,7 @@ function renderVideoMedia(mediaSlot, beachData, beachName) {
   mediaSlot.appendChild(videoEl);
 
   const startSwap = () => {
+    mediaSlot.classList.remove('beach-media--video-loading');
     requestAnimationFrame(() => {
       videoEl.classList.add('show');
       if (imgEl) imgEl.classList.remove('show');
@@ -499,17 +504,27 @@ function updateBeachTagsRow(beachData, beachName) {
     Totland: ['quiet', 'views', 'sunset'],
     'Colwell Bay': ['calm', 'family', 'sunset'],
     'Gurnard Bay': ['quiet', 'sailing', 'views'],
+    'East Cowes': ['historic', 'solent', 'views'],
+    'Osborne Bay': ['secluded', 'pebbly', 'victoria'],
+    'Ryde Beach': ['long', 'sandy', 'pier'],
+    'Appley Beach': ['sandy', 'tower', 'quiet'],
+    'Seagrove Bay': ['sheltered', 'calm', 'relaxed'],
   }[beachName];
 
   let tags;
   if (predefined) {
     tags = predefined;
   } else {
+    const stopWords = new Set(['a', 'an', 'the', 'one', 'of', 'and', 'with', 'for', 'to', 'by', 'on', 'at', 'in']);
     tags = lower
-      .replace(/[^a-z\s]/g, '')
+      .replace(/[^a-z\s]/g, ' ')
       .split(/\s+/)
-      .filter(Boolean)
+      .filter((w) => w.length > 1 && !stopWords.has(w))
       .slice(0, 3);
+    if (tags.length < 3) {
+      const fallback = lower.replace(/[^a-z\s]/g, ' ').split(/\s+/).filter(Boolean).slice(0, 3);
+      tags = tags.length ? tags : fallback;
+    }
   }
 
   if (!tags.length) {
@@ -517,4 +532,27 @@ function updateBeachTagsRow(beachData, beachName) {
   } else {
     el.textContent = tags.join(' • ');
   }
+}
+
+const BANNER_SCROLL_THRESHOLD = 60;
+
+export function initBannerScrollHide() {
+  const banner = document.querySelector('.banner');
+  if (!banner) return;
+
+  let lastScrollY = window.scrollY ?? document.documentElement.scrollTop;
+
+  function onScroll() {
+    const scrollY = window.scrollY ?? document.documentElement.scrollTop;
+    if (scrollY <= BANNER_SCROLL_THRESHOLD) {
+      banner.classList.remove('banner--hidden');
+    } else if (scrollY > lastScrollY) {
+      banner.classList.add('banner--hidden');
+    } else {
+      banner.classList.remove('banner--hidden');
+    }
+    lastScrollY = scrollY;
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
 }

@@ -31,36 +31,51 @@
       "text": "A long sandy beach popular for swimming and family fun, backed by a traditional promenade."
     },
     "Shanklin": {
+      "image": "https://res.dayoutwiththekids.co.uk/image/upload/v1594048503/attractions/s/shanklin-beach-bc9df5f3/34868-shanklin-beach-newport-01.jpg",
       "text": "Charming seafront with golden sands, a Victorian esplanade, and dramatic cliffs."
     },
     "Ventnor": {
+      "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/0d/b0/a2/16/atlantic-ocean-at-ventnor.jpg?w=1200&h=-1&s=1",
+      "video": "https://www.youtube.com/embed/3nah_tJ5_LA",
       "text": "A sheltered south-facing beach beneath steep cliffs, with a Victorian seaside character and some of the warmest waters on the island."
     },
     "Compton Bay": {
+      "image": "https://upload.wikimedia.org/wikipedia/commons/4/47/Compton_Bay%2C_Isle_of_Wight%2C_UK.jpg",
       "text": "A dramatic sweep of sand backed by crumbling clay cliffs, popular with surfers and fossil hunters. One of the island's most unspoilt beaches."
     },
     "Totland": {
+      "image": "https://coastradar.com/wp-content/uploads/2022/12/Totland-Bay-Pier.jpg",
+      "video": "https://www.youtube.com/embed/9CGoqgBdf20",
       "text": "A peaceful pebble-and-sand beach at the western tip of the island, with views towards the Needles and Hurst Castle."
     },
     "Colwell Bay": {
+      "image": "https://cdn.isleofwight.com/wp-content/uploads/Colwell-Beach-colwell-isle-of-wight-e1590669934690.jpg",
+      "video": "https://www.youtube.com/embed/9CGoqgBdf20",
       "text": "A family-friendly bay with a mix of sand and shingle, offering calm waters and fine sunset views across the Solent."
     },
     "Gurnard Bay": {
+      "image": "https://upload.wikimedia.org/wikipedia/commons/6/68/Flickr_-_ronsaunders47_-_GURNARD_BAY_NR_COWES._ISLE_OF_WIGHT_UK..jpg",
       "text": "A quiet village beach on the north coast, popular with dinghy sailors, with views across the Solent to the mainland."
     },
     "East Cowes": {
+      "image": "https://lh3.googleusercontent.com/gps-cs-s/AHVAwerJDiaM9vKgp0EmUQUg4dKof7oMel7KwJDf0qd1tjQM45eENfm9KzNuQOhnou77uj4fJ_U66Otw7m9rB76cPqC1DsDpXnP-uCa8-7_Z-aFu0a7Deitlv4XgHY65Ki6tE8dT2-E=s1360-w1360-h1020-rw",
+      "video": "https://www.youtube.com/embed/90ZXm5zNhRs",
       "text": "A small beach near the historic Osborne House, with views of the busy Solent shipping lanes and the Cowes waterfront."
     },
     "Osborne Bay": {
+      "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Osborne_Bay%2C_Isle_of_Wight%2C_UK.jpg/500px-Osborne_Bay%2C_Isle_of_Wight%2C_UK.jpg",
       "text": "A secluded pebbly beach on the grounds of Queen Victoria's former residence, accessible from the coastal path."
     },
     "Ryde Beach": {
+      "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/26/69/74/71/ryde-beach-oct-2022.jpg?w=1200&h=1200&s=1",
       "text": "One of the island's longest sandy beaches, stretching from the pier eastward, with excellent facilities and shallow paddling waters."
     },
     "Appley Beach": {
+      "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2d/25/2a/1e/caption.jpg?w=1200&h=1200&s=1",
       "text": "A sandy beach east of Ryde, recognisable by its distinctive Appley Tower. A quieter alternative to busy Ryde Beach."
     },
     "Seagrove Bay": {
+      "image": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/22/e8/c0/bb/beautiful-seagrove-bay.jpg?w=900&h=500&s=1",
       "text": "A small, sheltered bay near Bembridge, offering calm swimming and a relaxed atmosphere away from the busier resorts."
     }
   }

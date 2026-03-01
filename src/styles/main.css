@@ -130,6 +130,12 @@ body::after {
   box-sizing: border-box;
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-outline);
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+}
+
+.banner.banner--hidden {
+  transform: translateY(-100%);
 }
 
 .banner-right {
@@ -206,8 +212,9 @@ body::after {
   border: none;
   background: transparent;
   padding: 0;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   cursor: pointer;
 }
 
@@ -215,9 +222,10 @@ body::after {
 #theme-toggle::after {
   content: '';
   position: absolute;
-  inset: 0;
-  margin: auto;
-  border-radius: 999px;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  border-radius: 50%;
   transition: background-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
@@ -225,6 +233,8 @@ body::after {
 [data-theme='dark'] #theme-toggle::before {
   width: 16px;
   height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
   background-color: #fbbf24;
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35);
 }
@@ -233,23 +243,144 @@ body::after {
 [data-theme='light'] #theme-toggle::before {
   width: 16px;
   height: 16px;
-  background-color: #e5edff;
-  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.35);
+  margin-left: -8px;
+  margin-top: -8px;
+  background-color: #1e293b;
+  box-shadow: 0 0 0 2px rgba(30, 41, 59, 0.4);
 }
 
 [data-theme='light'] #theme-toggle::after {
   width: 16px;
   height: 16px;
-  background-color: #cbd5f5;
-  transform: translateX(4px);
+  margin-left: -8px;
+  margin-top: -8px;
+  background-color: var(--color-surface-1);
+  transform: translate(4px, 0);
 }
 
 [data-theme='dark'] #theme-toggle::after {
   width: 0;
   height: 0;
+  margin: 0;
+  transform: none;
 }
 
 #theme-toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ==================== Tutorial tips ==================== */
+.tutorial-overlays {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1300;
+}
+
+.tutorial-tip {
+  pointer-events: auto;
+  max-width: 260px;
+  padding: 12px 14px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-outline);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: tutorialPop 0.25s ease;
+}
+
+@keyframes tutorialPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tutorial-tip-arrow {
+  width: 0;
+  height: 0;
+  border: 7px solid transparent;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2));
+}
+
+.tutorial-tip--bottom .tutorial-tip-arrow {
+  position: absolute;
+  left: calc(var(--arrow-offset, 50%) - 7px);
+  top: -7px;
+  border-top: none;
+  border-bottom-color: var(--color-surface-1);
+}
+
+.tutorial-tip--top .tutorial-tip-arrow {
+  position: absolute;
+  left: calc(var(--arrow-offset, 50%) - 7px);
+  bottom: -7px;
+  border-bottom: none;
+  border-top-color: var(--color-surface-1);
+}
+
+.tutorial-tip-message {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+.tutorial-tip-dismiss {
+  display: block;
+  width: 100%;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: linear-gradient(180deg, var(--color-surface-2), color-mix(in srgb, var(--color-surface-2) 85%, var(--color-outline)));
+  border: 1px solid var(--color-outline);
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: tutorialGotItPulse 2s ease-in-out infinite;
+}
+
+.tutorial-tip-dismiss:hover {
+  background: linear-gradient(180deg, var(--color-surface-3), color-mix(in srgb, var(--color-surface-3) 90%, var(--color-outline)));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: none;
+}
+
+.tutorial-tip-dismiss:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+@keyframes tutorialGotItPulse {
+  0%, 100% {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+}
+
+.tutorial-restore {
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.2em;
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.tutorial-restore:hover {
+  opacity: 1;
+}
+
+.tutorial-restore:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
@@ -1068,9 +1199,27 @@ main::before {
   height: 8px;
   margin: auto;
   border-radius: 999px;
-  background-color: rgba(148, 163, 184, 0.95);
-  box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.75);
-  animation: flipDotPulse 1.8s ease-out infinite;
+}
+
+/* Tide: light dot (visible on dark tide clock) */
+.tide-details-button::before,
+.tide-back-button::before {
+  background-color: rgba(226, 232, 240, 1);
+  box-shadow: 0 0 0 0 rgba(226, 232, 240, 0.85), 0 0 8px 2px rgba(226, 232, 240, 0.5);
+}
+
+/* Wave: darker dot in light theme (visible on light wave box), bright in dark theme */
+.wave-details-button::before,
+.wave-back-button::before {
+  background-color: rgba(71, 85, 105, 1);
+  box-shadow: 0 0 0 0 rgba(71, 85, 105, 0.75), 0 0 8px 2px rgba(71, 85, 105, 0.5);
+}
+
+[data-theme='dark'] .wave-details-button::before,
+[data-theme='dark'] .wave-back-button::before {
+  background-color: rgba(226, 232, 240, 1);
+  box-shadow: 0 0 0 0 rgba(226, 232, 240, 0.85), 0 0 8px 2px rgba(226, 232, 240, 0.5);
+  animation: flipDotPulseTide 1.8s ease-out infinite;
 }
 
 .tide-clock {
@@ -1465,15 +1614,52 @@ main::before {
 @keyframes flipDotPulse {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.75);
   }
   70% {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 6px rgba(148, 163, 184, 0);
+    transform: scale(1.15);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(148, 163, 184, 0);
+  }
+}
+
+.tide-details-button::before,
+.tide-back-button::before {
+  animation: flipDotPulseTide 1.8s ease-out infinite;
+}
+
+.wave-details-button::before,
+.wave-back-button::before {
+  animation: flipDotPulseWave 1.8s ease-out infinite;
+}
+
+@keyframes flipDotPulseTide {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(226, 232, 240, 0.85), 0 0 8px 2px rgba(226, 232, 240, 0.5);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(226, 232, 240, 0), 0 0 12px 4px rgba(226, 232, 240, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(226, 232, 240, 0), 0 0 8px 2px rgba(226, 232, 240, 0.4);
+  }
+}
+
+@keyframes flipDotPulseWave {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(71, 85, 105, 0.75), 0 0 8px 2px rgba(71, 85, 105, 0.5);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 8px rgba(71, 85, 105, 0), 0 0 12px 4px rgba(71, 85, 105, 0.35);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(71, 85, 105, 0), 0 0 8px 2px rgba(71, 85, 105, 0.4);
   }
 }
 
@@ -1680,6 +1866,8 @@ main::before {
   background: #0f0f0f;
   display: block;
   position: relative;
+  pointer-events: none;
+  cursor: default;
 }
 
 .beach-media > * {
@@ -1703,6 +1891,44 @@ main::before {
   height: 100%;
 }
 
+.beach-media.beach-media--video-loading {
+  --beach-loading-size: 32px;
+}
+
+.beach-media.beach-media--video-loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(15, 23, 42, 0.45) 100%
+  );
+  z-index: 1;
+}
+
+.beach-media.beach-media--video-loading::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: calc(var(--beach-loading-size) / -2);
+  margin-top: calc(var(--beach-loading-size) / -2);
+  width: var(--beach-loading-size);
+  height: var(--beach-loading-size);
+  border: 3px solid rgba(148, 163, 184, 0.3);
+  border-top-color: rgba(203, 213, 225, 0.95);
+  border-radius: 50%;
+  animation: beachMediaSpinner 0.7s linear infinite;
+  z-index: 2;
+}
+
+@keyframes beachMediaSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 #beach-description-text {
   font-size: 15px;
   color: var(--color-muted);
@@ -1720,8 +1946,12 @@ main::before {
   border: 1px solid var(--color-outline);
 }
 
+#chart-section .collapsible-content:not(.collapsed) {
+  overflow: visible;
+}
+
 .chart-title {
-  margin: 0;
+  margin: 0 0 4px;
   font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.2px;
@@ -1732,7 +1962,8 @@ main::before {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 10px;
+  margin-top: 12px;
+  margin-bottom: 12px;
   width: 100%;
 }
 
@@ -1747,19 +1978,20 @@ main::before {
   padding: 0 6px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   line-height: 1;
   border: 1px solid var(--color-outline);
   border-radius: 999px;
   background-color: rgba(255, 255, 255, 0.04);
   color: var(--color-text);
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 #date-selector button:hover {
   background-color: var(--color-date-hover-bg);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 #date-selector button.selected {
@@ -1775,6 +2007,7 @@ main::before {
 }
 
 #tide-chart-container {
+  position: relative;
   width: 100%;
   height: auto;
   display: flex;
@@ -1792,7 +2025,8 @@ svg {
   font-family: var(--font-ui);
   font-size: 10px;
   font-weight: 500;
-  letter-spacing: 0;
+  letter-spacing: 0.03em;
+  fill: var(--color-muted);
 }
 
 #tide-chart-container .domain,
@@ -1919,18 +2153,29 @@ svg {
   outline-offset: 2px;
 }
 
-/* ==================== Tooltip ==================== */
-.tooltip {
+/* ==================== Tooltip (tide chart hover) ==================== */
+#tide-chart-container .tooltip {
   position: absolute;
-  background-color: color-mix(in srgb, var(--color-surface-2) 92%, transparent);
+  background: color-mix(in srgb, var(--color-surface-2) 94%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: var(--color-text);
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
   border: 1px solid var(--color-outline);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12), 0 0 1px rgba(0, 0, 0, 0.08);
   font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
   pointer-events: none;
   white-space: nowrap;
+  z-index: 2;
+}
+
+#tide-chart-container .tooltip strong {
+  font-weight: 600;
+  color: var(--color-tide-accent);
 }
 
 #current-time-point,
